@@ -99,7 +99,7 @@ map <- ggplot() +
   labs(
     title = title_text,
     subtitle = "Not all countries use street names in their addressing systems. Some countries have street names for every road and use them<br>in addresses, while others have few or no street names and rely instead on such as area codes, PO box numbers, or digital<br>geocoding services like what3words.", x = NULL, y = NULL,
-    caption = "Source: Universal Postal Union (2024)\n@mark_jun8, #30DayMapChallenge #Day14")+
+    caption = "Source: Universal Postal Union (2024)\nGitHub@yjmark, @weitzman_musa, #30DayMapChallenge #Day14")+
   
     # Add the colored annotations with leader lines
   annotate("text", x = 12750000.18, y = 892900.90, label = annotation_text_NU, color = color_NU, size = 12, family = "roboto",  fontface = "bold", hjust=0, lineheight = 0.4) +
