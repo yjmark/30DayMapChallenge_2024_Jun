@@ -90,21 +90,21 @@ map <- ggplot() +
     axis.text = element_blank(),                                     
     axis.ticks = element_blank(),                                    
     plot.title = element_markdown(hjust = 0, size = 56, face = "bold"),
-    plot.subtitle = element_markdown(hjust = 0, size = 36, lineheight=0.4),  # Use element_markdown for ggtext
-    plot.caption = element_text(size = 36, hjust = 0, lineheight = 0.4),
-    plot.margin = margin(3, 3, 3, 3),
+    plot.subtitle = element_markdown(hjust = 0, size = 27, lineheight=0.4),  # Use element_markdown for ggtext
+    plot.caption = element_text(size = 27, hjust = 0, lineheight = 0.4),
+    plot.margin = margin(5, 5, 5, 5),
     legend.position = "none"
   ) +
   coord_sf(crs= "+proj=robin") +
   labs(
     title = title_text,
     subtitle = "Not all countries use street names in their addressing systems. Some countries have street names for every road and use them<br>in addresses, while others have few or no street names and rely instead on such as area codes, PO box numbers, or digital<br>geocoding services like what3words.", x = NULL, y = NULL,
-    caption = "Source: Universal Postal Union (2024)\n@mark_jun8, #30DayMapChallenge")+
+    caption = "Source: Universal Postal Union (2024)\n@mark_jun8, #30DayMapChallenge #Day14")+
   
     # Add the colored annotations with leader lines
-  annotate("text", x = 12750000.18, y = 892900.90, label = annotation_text_NU, color = color_NU, size = 11, family = "roboto",  fontface = "bold", hjust=0, lineheight = 0.4) +
-  annotate("text", x = 1137550.15, y = -4622900.85, label = annotation_text_PU, color = color_PU, size = 11, family = "roboto",   fontface = "bold", lineheight = 0.4) +
-  annotate("text", x = -18750000.18, y = -2022900.85, label = annotation_text_UU, color = color_UU, size = 11, family = "roboto",   fontface = "bold", hjust=0, lineheight = 0.4) +
+  annotate("text", x = 12750000.18, y = 892900.90, label = annotation_text_NU, color = color_NU, size = 12, family = "roboto",  fontface = "bold", hjust=0, lineheight = 0.4) +
+  annotate("text", x = 1137550.15, y = -4622900.85, label = annotation_text_PU, color = color_PU, size = 12, family = "roboto",   fontface = "bold", lineheight = 0.4) +
+  annotate("text", x = -18750000.18, y = -2022900.85, label = annotation_text_UU, color = color_UU, size = 12, family = "roboto",   fontface = "bold", hjust=0, lineheight = 0.4) +
   
   # Add leader lines to the annotations
   geom_segment(aes(x = 12250000.18, xend = 12250000.18, y = 892900.900, yend = 3929000), color = color_NU, size = 0.8) +
@@ -118,6 +118,6 @@ map <- ggplot() +
   geom_point(aes(x = -15750000.18, y = -3322900.85), color = color_UU, size = 3) 
 
 map %>% 
-  ggsave(filename = "14-youngsang-jun.jpg", width = 1, height = 1, dpi = 300)
+  ggsave(filename = "14-youngsang-jun.jpg", width = 10, height = 6, dpi = 300)
 ```
 
