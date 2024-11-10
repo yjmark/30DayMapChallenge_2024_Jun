@@ -1,0 +1,123 @@
+---
+title: "Day 14"
+author: "Jun, Youngsang"
+date: "November 14, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+library(RSocrata)
+library(viridis)
+library(spatstat.explore)
+library(raster)
+library(spdep)
+library(FNN)
+library(grid)
+library(gridExtra)
+library(knitr)
+library(kableExtra)
+library(tidycensus)
+library(classInt)   
+library(forcats)
+library(showtext)
+library(glue)
+#install.packages("showtext")
+
+font_add_google("Roboto", "roboto") 
+showtext_auto()
+```
+
+```{r cars}
+worldMap <- st_read("~/Documents/30DayMapChallenge_2024_Jun/Day14_UPU_StreetAddress/Data/custom.geo.json") %>% 
+  st_as_sf(crs = 4326)
+#worldMap <- st_transform(worldMap, crs="+proj=robin +datum=WGS84")
+street<-readxl::read_excel("~/Documents/30DayMapChallenge_2024_Jun/Day14_UPU_StreetAddress/Data/2. ListPostcodesDatabaseDataSets&Volume2024No3En.xlsx")
+
+joined <- worldMap %>%
+  st_drop_geometry() %>%
+  left_join(street, by=c("adm0_a3"="Data set code (\"ISO- 3 CODE\" )"))
+
+missing_rows <- worldMap %>%
+  st_drop_geometry() %>%
+  anti_join(street, by = c("adm0_a3" = "Data set code (\"ISO- 3 CODE\" )")) 
+
+st_geometry(joined) <- st_geometry(worldMap)
+
+joined <- bind_rows(joined, missing_rows)
+
+
+joined <- joined %>%
+  mutate(
+    `Street name` = case_when(
+      adm0_a3 %in% c("SOM", "XSK", "SOL", "SAH", "KOS") | sovereignt  %in% c("Niger", "Antarctica") | admin == "Palestine" ~ "Not use street names",
+      adm0_a3 %in% c("SDS") |sovereignt %in% c("Northern Cyprus", "Taiwan") | admin == "Israel" ~ "Use street names in address",
+      TRUE ~ `Street name`
+    )
+  )
+
+annotation_text_NU <- glue("Not use street names\nin address")
+annotation_text_PU <- glue("Partially use street names in address")
+annotation_text_UU <- glue("Primarily or fullly use\nstreet names in address")
+
+color_NU <- "#cccccc"
+color_PU <- "#afc0cb"
+color_UU <- "#5a7d98"
+
+title_text <- glue("Do All Countries Use <span style='color:{color_UU};'><b>Street Addresses</b></span>?")
+```
+
+```{r}
+map <- ggplot() +
+  geom_sf(data = joined, aes(fill = `Street name`), color = "white", size = 0.2) +
+  scale_fill_manual(values = c(
+    "Not use street names" = color_NU, 
+    "Partially use street names in address" = color_PU, 
+    "Use street names in address" = color_UU), name = "Street Name") +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "roboto"),
+    panel.background = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "transparent"),         
+    axis.text = element_blank(),                                     
+    axis.ticks = element_blank(),                                    
+    plot.title = element_markdown(hjust = 0, size = 56, face = "bold"),
+    plot.subtitle = element_markdown(hjust = 0, size = 36, lineheight=0.4),  # Use element_markdown for ggtext
+    plot.caption = element_text(size = 36, hjust = 0, lineheight = 0.4),
+    plot.margin = margin(3, 3, 3, 3),
+    legend.position = "none"
+  ) +
+  coord_sf(crs= "+proj=robin") +
+  labs(
+    title = title_text,
+    subtitle = "Not all countries use street names in their addressing systems. Some countries have street names for every road and use them<br>in addresses, while others have few or no street names and rely instead on such as area codes, PO box numbers, or digital<br>geocoding services like what3words.", x = NULL, y = NULL,
+    caption = "Source: Universal Postal Union (2024)\n@mark_jun8, #30DayMapChallenge")+
+  
+    # Add the colored annotations with leader lines
+  annotate("text", x = 12750000.18, y = 892900.90, label = annotation_text_NU, color = color_NU, size = 11, family = "roboto",  fontface = "bold", hjust=0, lineheight = 0.4) +
+  annotate("text", x = 1137550.15, y = -4622900.85, label = annotation_text_PU, color = color_PU, size = 11, family = "roboto",   fontface = "bold", lineheight = 0.4) +
+  annotate("text", x = -18750000.18, y = -2022900.85, label = annotation_text_UU, color = color_UU, size = 11, family = "roboto",   fontface = "bold", hjust=0, lineheight = 0.4) +
+  
+  # Add leader lines to the annotations
+  geom_segment(aes(x = 12250000.18, xend = 12250000.18, y = 892900.900, yend = 3929000), color = color_NU, size = 0.8) +
+  geom_segment(aes(x = 1137550.15, xend = 1137550.15, y = -484000.02, yend = -3922900.85), color = color_PU, size = 0.8) +
+  geom_segment(aes(x = -15750000.18, xend = -5750000.18, y = -3322900.85, yend = -3322900.85), color = color_UU, size = 0.8) +
+
+
+# Add point lines to the end of the line
+  geom_point(aes(x = 12250000.18, y = 892900.90), color = color_NU, size = 3) +
+  geom_point(aes(x = 1137550.15, y = -3922900.85), color = color_PU, size = 3) +
+  geom_point(aes(x = -15750000.18, y = -3322900.85), color = color_UU, size = 3) 
+
+map %>% 
+  ggsave(filename = "14-youngsang-jun.jpg", width = 1, height = 1, dpi = 300)
+```
+

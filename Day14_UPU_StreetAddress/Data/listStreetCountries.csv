@@ -1,0 +1,267 @@
+﻿"Data set code (""ISO- 3 CODE"" )",Data set identifier,Country/territory name,Geographical region,Data level,Last updated,Supplement to data level,"Records in the LOCALITY
+file AAA_XY1","Records in the
+LOCALITY SUBDIVISION
+file AAA_XY2","Records in the
+STREET
+(roadnet) file AAA_XY3","Records in the ORGANIZATION
+file AAA_XY4","Records in the SYNONYM
+file AAA_XY5",Non-Latin scripts supported,"ISO code of
+language in  the SYN_LNG fileld for non Latin script","Encoding used in the ISO 8859 folder
+(UTF-8 if not available)","Data sets with specific conditions on
+31 August 2024","Download the sample from www.upu.int
+or ask for your sample CD",Street name
+AFG,00,Afghanistan,Asia Pacific Oceania,B,2016.3,,414,,,116,10,,,ISO-8859-1,,Yes,Not in use country
+ALA,00,Åland Islands,Territories,A,2024.1,,42,344,"2,436",17,"2,314",,,ISO-8859-1,,,street name use country
+ALB,00,Albania,Western Europe,B,2018.2,,363,,,"3,308",1,,,ISO-8859-1,,,Not in use country
+DZA,00,Algeria,Africa,B,2024.3,,"4,336",,,"3,859",,Arab,,,,,Not in use country
+ASM,00,American Samoa,Territories,B,2024.3,,1,,,,,,,ISO-8859-1,,,Not in use country
+AND,00,Andorra,Western Europe,A,2024.2,,42,,"10,684",13,,,,ISO-8859-1,,,street name use country
+AGO,00,Angola,Africa,C,2019.2,,168,959,852,,145,,,ISO-8859-1,,,street name use country
+AIA,00,Anguilla,Territories,B,2018.1,,47,,,,,,,ISO-8859-1,,,Not in use country
+ATG,00,Antigua and Barbuda,Central and South America,C,2012.2,,121,33,21,,,,,ISO-8859-1,,,street name use country
+ARG,00,Argentina,Central and South America,A,2017.2,Streets for the capital,"22,939","5,405","2,350,408",230,"62,458",,,ISO-8859-1,,Yes,street name use country
+ARM,00,Armenia,Eastern Europe,A++,2021.2,,816,13,"579,482",847,8,Armn,hy,,,Yes,street name use country
+ABW,00,Aruba,Territories,C,2020.1,,24,32,"2,348",9,,,,ISO-8859-1,,,street name use country
+ASC,00,Ascension,Territories,B,2019.4,,5,,,,3,,,ISO-8859-1,,,Not in use country
+AUS,00,Australia,Asia Pacific Oceania,A++,2024.3,,"18,207",,"15,570,300",826,"69,374",,,ISO-8859-1,"Geoscape data
+products",Yes,street name use country
+AUT,00,Austria,Western Europe,A+,2024.3,,"2,683","17,278","143,277","5,721","87,468",,,ISO-8859-1,,Yes,street name use country
+AZE,00,Azerbaijan,Eastern Europe,A,2020.4,,"1,309",12,986,"1,730",134,,ru,,,Yes,street name use country
+BHS,00,Bahamas,Central and South America,C,2017.2,,368,225,"1,415",399,44,,,ISO-8859-1,,Yes,street name use country
+BHR,00,Bahrain,Asia Pacific Oceania,A,2018.2,,138,32,"2,904",316,,Arab,ar,ISO-8859-6,,,street name use country
+BGD,00,Bangladesh,Asia Pacific Oceania,B,2018.1,,64,485,,"1,349",6,Beng,,,,,Not in use country
+BRB,00,Barbados,Central and South America,A,2020.3,,11,998,"5,261",31,,,,ISO-8859-1,,,street name use country
+BLR,00,Belarus,Eastern Europe,A,2018.4,,"22,771",,"281,874",653,19,Cyrl,ru,ISO-8859-5,,Yes,street name use country
+BEL,10,Belgium,Western Europe,A,2024.3,,"2,775",28,"159,483","1,451","10,869",,,ISO-8859-1,Road65,Yes,street name use country
+BLZ,00,Belize,Central and South America,C,2020.4,,213,,,16,,,,ISO-8859-1,,,Not in use country
+BEN,00,Benin,Africa,C,2020.1,,77,"4,337","1,711",111,57,,,ISO-8859-1,,,street name use country
+BMU,00,Bermuda,Territories,A++,2022.2,,11,,"18,382",23,2,,,ISO-8859-1,,,street name use country
+BTN,00,Bhutan,Asia Pacific Oceania,B,2018.2,,72,,,71,,,,ISO-8859-1,,,Not in use country
+BOL,00,Bolivia,Central and South America,C,2019.4,,"1,601",,,,,,,ISO-8859-1,,,Not in use country
+BES,00,"Bonaire, Saint Eustatius
+and Saba",Territories,C,2011.1,,31,,,,,,,ISO-8859-1,,,Not in use country
+BIH,00,Bosnia and Herzegovina,Eastern Europe,A,2024.1,,549,"7,984",300,,"4,243",Cyrl,,,,,street name use country
+BWA,00,Botswana,Africa,C,2020.1,,378,"6,338",,,,,,ISO-8859-1,,,Not in use country
+IOT,00,Br. Indian Ocean Ter.,Territories,B,2020.2,,22,,,,,,,ISO-8859-1,,,Not in use country
+BRA,10,Brazil,Central and South America,A,2024.3,More detailed data,"11,293","69,667","1,313,131","162,809","1,509,342",,,ISO-8859-1,DNE,Yes,street name use country
+XBA,00,British Antarctic Territory,Territories,B,2016.4,,3,,,,,,,ISO-8859-1,,,Not in use country
+BRN,00,Brunei Darussalam,Asia Pacific Oceania,A,2019.3,"Partial list of streets for the
+capital",39,456,244,95,,,,ISO-8859-1,,,street name use country
+BGR,00,Bulgaria,Eastern Europe,A+,2024.2,,"5,307",703,"27,187","4,245",1,Cyrl,bg,ISO-8859-5,,Yes,street name use country
+BFA,00,Burkina Faso,Africa,B+,2022.3,,351,122,"1,056",222,5,,,ISO-8859-1,,,street name use country
+BDI,00,Burundi,Africa,C,2014.2,,135,,,136,,,,ISO-8859-1,,,Not in use country
+CPV,00,Cabo Verde,Africa,B+,2023.4,,451,"3,559",,"23,636",41,,,ISO-8859-1,,,Not in use country
+KHM,00,Cambodia,Asia Pacific Oceania,B+,2018.4,,197,"1,646",,224,,Khmr,,,,,Not in use country
+CMR,00,Cameroon,Africa,C,2015.2,,313,,,,,,,ISO-8859-1,,,Not in use country
+CAN,10,Canada,North America,A+,2024.3,,"8,328",,"2,101,640","58,054","16,870",,,ISO-8859-1,"Address Lookup File
+(CPC)",Yes,street name use country
+CYM,00,Cayman Islands,Territories,B,2019.4,,3,7,"1,557","15,474",3,,,ISO-8859-1,,,street name use country
+CAF,00,Central African Rep.,Africa,C,2020.2,,72,349,,,,,,ISO-8859-1,,,Not in use country
+TCD,00,Chad,Africa,C,2015.2,,272,64,,,23,,ar,ISO-8859-6,,,Not in use country
+CHL,00,Chile,Central and South America,A+,2024.2,,342,,"1,231,322",753,17,,,ISO-8859-1,,Yes,street name use country
+CHN,00,China,Asia Pacific Oceania,B+,2015.3,,345,"29,333",,"49,269",,Hans,zh,,,Yes,Not in use country
+CXR,00,Christmas Island,Territories,B,2014.4,,1,,,,,,,ISO-8859-1,,,Not in use country
+CPT,00,Clipperton Island,Territories,B,2024.3,,1,,,,,,,ISO-8859-1,,,Not in use country
+CCK,00,Cocos (Keeling) Is.,Territories,B,2014.4,,2,,,,,,,ISO-8859-1,,,Not in use country
+COL,00,Colombia,Central and South America,B+,2021.3,,"1,121","20,557",,"4,112",1,,,ISO-8859-1,,Yes,Not in use country
+COM,00,Comoros,Africa,C,2022.3,,316,12,,52,6,,,ISO-8859-1,,,Not in use country
+COD,00,Congo (Dem. Rep.),Africa,B,2022.3,,"90,840",174,,54,,,,ISO-8859-1,,,Not in use country
+COG,00,Congo (Rep.),Africa,C,2015.2,,92,19,,,17,,,ISO-8859-1,,,Not in use country
+COK,00,Cook Islands,Territories,C,2017.1,,37,29,228,,1,,,ISO-8859-1,,,street name use country
+CRI,00,Costa Rica,Central and South America,B+,2010.2,,81,473,,,,,,ISO-8859-1,,,Not in use country
+CIV,00,Côte d'Ivoire,Africa,C,2021.1,,108,510,,173,85,,,ISO-8859-1,,,Not in use country
+HRV,00,Croatia,Western Europe,A,2024.3,,295,"6,778","5,345","1,824",160,,,ISO-8859-2,,Yes,street name use country
+CUB,00,Cuba,Central and South America,B,2021.1,,169,,,"1,095",10,,,ISO-8859-1,,,Not in use country
+CUW,00,Curaçao,Territories,C,2011.1,,32,,,,,,,ISO-8859-1,,,Not in use country
+CYP,00,Cyprus,Western Europe,A,2024.3,Streets for 132 towns/cities,744,,"34,192","33,061",5,Grek,el,ISO-8859-7,,Yes,street name use country
+CZE,00,Czech Republic,Eastern Europe,A++,2024.3,Premise level data,"6,257","15,105","2,986,498","7,859",5,,,ISO-8859-2,,Yes,street name use country
+DNK,00,Denmark,Western Europe,A++,2024.3,Streets directory,931,"8,823","3,923,143",594,"31,313",,,ISO-8859-1,,Yes,street name use country
+DGA,00,Diego Garcia,Territories,B,2020.2,,22,,,,,,,ISO-8859-1,,,Not in use country
+DJI,00,Djibouti,Africa,A,2021.3,,105,178,139,,63,,ar,ISO-8859-6,,,street name use country
+DMA,00,Dominica,Central and South America,C,2018.1,,126,24,,,,,,ISO-8859-1,,,Not in use country
+DOM,00,Dominican Republic,Central and South America,A,2021.1,,167,"1,122","8,263",107,,,,ISO-8859-1,,,street name use country
+ECU,00,Ecuador,Central and South America,A,2019.1,,"1,014",,"311,353",,"34,998",,,ISO-8859-1,,Yes,street name use country
+EGY,00,Egypt,Africa,B,2023.3,,299,25,,"528,648",227,Arab,ar,,,,Not in use country
+SLV,00,El Salvador,Central and South America,A,2019.2,"Streets and districts for the
+capital",298,"2,953",437,152,,,,ISO-8859-1,,,street name use country
+GNQ,00,Equatorial Guinea,Africa,C,2023.1,,37,,,,,,,ISO-8859-1,,,Not in use country
+ERI,00,Eritrea,Africa,C,2015.2,,56,4,,,11,Ethi,ti,,,,Not in use country
+EST,00,Estonia,Eastern Europe,A++,2024.3,"Streets for some 755
+towns/cities",79,"4,707","1,348,696",,,,,ISO-8859-13,,Yes,street name use country
+SWZ,00,Eswatini,Africa,B,2020.4,,81,,,,,,,ISO-8859-1,,,Not in use country
+ETH,00,Ethiopia,Africa,C,2016.4,,77,729,,"1,387",9,,,ISO-8859-1,,,Not in use country
+FLK,00,Falkland Is. (Malvinas),Territories,A,2016.4,,62,,83,3,,,,ISO-8859-1,,,street name use country
+FRO,00,Faröe Islands,Western Europe,A++,2024.1,,118,,"25,906",12,592,,,ISO-8859-1,,,street name use country
+FJI,00,Fiji,Asia Pacific Oceania,C,2017.2,,163,,97,369,,,,ISO-8859-1,,,street name use country
+FIN,00,Finland,Western Europe,A+,2024.3,,"3,511",,"370,723","37,077","35,657",,,ISO-8859-1,,Yes,street name use country
+FRA,50,France,Western Europe,A++,2024.3,,"35,195","4,713","26,340,738","172,116","492,208",,,ISO-8859-1,Hexacle + Hexaligne,Yes,street name use country
+GUF,00,French Guiana,Territories,B+,2024.3,,22,3,,6,,,,ISO-8859-1,,,Not in use country
+PYF,00,French Polynesia,Territories,B+,2024.3,,205,191,,4,,,,ISO-8859-1,,,Not in use country
+ATF,00,French Southern Ter.,Territories,C,2018.3,,5,,,,5,,,ISO-8859-1,,,Not in use country
+GAB,00,Gabon,Africa,C,2016.2,,49,211,,,,,,ISO-8859-1,,,Not in use country
+GMB,00,Gambia,Africa,C,2018.1,,"1,633",,,14,2,,,ISO-8859-1,,,Not in use country
+GEO,00,Georgia,Eastern Europe,A,2024.1,,"3,910",,"7,342",27,3,Geor,,,,Yes,street name use country
+DEU,20,Germany,Western Europe,A+,2024.3,,"12,935","73,718","1,268,522","53,760","188,814",,,ISO-8859-1,Datafactory Streetcode,Yes,street name use country
+GHA,00,Ghana,Africa,B,2021.1,,245,,,264,,,,ISO-8859-1,,,Not in use country
+GIB,00,Gibraltar,Territories,A,2016.4,,1,,"30,178",1,,,,ISO-8859-1,,,street name use country
+GRC,10,Greece,Western Europe,A+,2024.3,,592,"13,318","81,610",953,73,Grek,,ISO-8859-7,"GREEK STREET
+DATABASE",Yes,street name use country
+GRL,00,Greenland,Western Europe,B,2024.3,,33,,,,,,,ISO-8859-1,,,Not in use country
+GRD,00,Grenada,Central and South America,C,2015.4,,279,,,,19,,,ISO-8859-1,,,Not in use country
+GLP,00,Guadeloupe,Territories,B+,2024.3,,32,5,,2,,,,ISO-8859-1,,,Not in use country
+GUM,00,Guam,Territories,B,2024.3,,23,,,17,25,,,ISO-8859-1,,,Not in use country
+GTM,00,Guatemala,Central and South America,B+,2019.3,,366,188,,,,,,ISO-8859-1,,,Not in use country
+GIN,00,Guinea,Africa,A,2020.1,,39,"1,705",252,78,26,,,ISO-8859-1,,,street name use country
+GNB,00,Guinea-Bissau,Africa,B+,2004.2,,47,35,,,,,,ISO-8859-1,,,Not in use country
+GUY,00,Guyana,Central and South America,C,2022.1,,"1,193",255,517,62,10,,,ISO-8859-1,,,street name use country
+HTI,00,Haiti,Central and South America,B,2019.4,Streets for the capital only,140,581,34,,20,,,ISO-8859-1,,,street name use country
+HND,00,Honduras,Central and South America,B,2022.4,,466,,,830,,,,ISO-8859-1,,,Not in use country
+HKG,00,Hong Kong,Territories,C,2024.3,,18,127,"4,735",,,Hans,,,,Yes,street name use country
+HUN,20,Hungary,Eastern Europe,A++,2024.2,Premise level data,"3,155","1,042","3,334,506",,37663,,,ISO-8859-2,GeoX Premise,Yes,street name use country
+ISL,00,Iceland,Western Europe,A++,2024.3,,85,,"146,084",20,67,,,ISO-8859-1,"National Registry
+Iceland",Yes,street name use country
+IND,00,India,Asia Pacific Oceania,B+,2021.1,,"19,488","321,643",,"170,737",80,,,ISO-8859-1,,Yes,Not in use country
+IDN,00,Indonesia,Asia Pacific Oceania,B+,2024.3,,510,"81,292",,"3,909",,,,ISO-8859-1,,Yes,Not in use country
+IRN,00,Iran,Asia Pacific Oceania,B,2024.1,,"1,433",,,42494,1933,,fa,ISO-8859-6,,Yes,Not in use country
+IRQ,00,Iraq,Asia Pacific Oceania,B,2023.3,,344,,,,,Arab,ar,ISO-8859-6,,,Not in use country
+IRL,10,Ireland,Western Europe,A++,2018.2,Premise level data,702,"50,291","1,639,724","695,878","451,169",,,ISO-8859-1,Eircodes,Yes,street name use country
+ISR,00,Israel,Asia Pacific Oceania,A++,2023.1,,"1,302",,"675,461",,,Hebr,,ISO-8859-8,,,street name use country
+ITA,00,Italy,Western Europe,A++,2024.3,,"16,110",,"13,682,053",602,437,,,ISO-8859-1,,Yes,street name use country
+JAM,00,Jamaica,Central and South America,C,2021.3,,106,"2,930","6,079",32,22,,,ISO-8859-1,,,street name use country
+JPN,00,Japan,Asia Pacific Oceania,A++,2024.3,,"1,187","168,576","22,669,746","22,425","146,241",Hani,ja,,,Yes,street name use country
+JOR,00,Jordan,Asia Pacific Oceania,B,2016.1,,650,,,,,Arab,ar,ISO-8859-6,,,Not in use country
+KAZ,00,Kazakhstan,Eastern Europe,A,2024.2,,"7,001","15,136","3,570,937",,"141,847",Cyrl,"kk,ru",,,Yes,street name use country
+KEN,00,Kenya,Africa,B,2017.2,,541,,,206,1,,,ISO-8859-1,,,Not in use country
+KIR,00,Kiribati,Asia Pacific Oceania,B,2022.3,,203,,,196,,,,ISO-8859-1,,,Not in use country
+PRK,00,Korea (Dem. Rep.),Asia Pacific Oceania,C,2015.3,,184,26,,,442,Hang,ko,,,,Not in use country
+KOR,00,Korea (Rep.),Asia Pacific Oceania,A++,2024.3,,254,"22,073","6,398,459",967,,Hang,ko,,,Yes,street name use country
+XSK,00,Kosovo (UNMIK),Eastern Europe,B,2006.4,,78,,,44,26,,,ISO-8859-1,,,Not in use country
+KWT,00,Kuwait,Asia Pacific Oceania,B+,2021.1,,129,"1,341",,"5,162",48,Arab,ar,ISO-8859-6,,,Not in use country
+KGZ,00,Kyrgyzstan,Eastern Europe,A,2019.2,,772,,"1,418",174,,Cyrl,ru,ISO-8859-5,,Yes,street name use country
+LAO,00,Laos,Asia Pacific Oceania,B+,2021.2,,145,"8,103",,217,,Laoo,,ISO-8859-1,,,Not in use country
+LVA,01,Latvia,Eastern Europe,A++,2024.3,,43,"6,098","1,349,116","1,201",,,,ISO-8859-13,,Yes,street name use country
+LBN,00,Lebanon,Asia Pacific Oceania,C,2018.2,,"2,708",,,520,,Arab,,ISO-8859-1,,Yes,Not in use country
+LSO,00,Lesotho,Africa,B+,2018.4,,52,"3,194",,178,,,,ISO-8859-1,,,Not in use country
+LBR,00,Liberia,Africa,B,2017.3,,"1,968",29,53,24,5,,,ISO-8859-1,,,street name use country
+LIE,00,Liechtenstein,Western Europe,A++,2024.3,,14,2,"12,201",11,1252,,,ISO-8859-1,,,street name use country
+LTU,00,Lithuania,Eastern Europe,A++,2024.3,Premise level data,"18,785",,"2,188,276","13,220","37,576",,,ISO-8859-13,"Adresų registro duomenys by Registrų centras ODC
+Attribution License",Yes,street name use country
+LUX,00,Luxembourg,Western Europe,A++,2024.3,,557,,"191,571",502,,,,ISO-8859-1,,Yes,street name use country
+MAC,00,Macao,Territories,C,2016.2,,1,,"1,272",,"1,459",,zh,,,Yes,street name use country
+MDG,00,Madagascar,Africa,B,2017.3,,891,,,245,,,,ISO-8859-1,,,Not in use country
+MWI,00,Malawi,Africa,B+,2019.4,,280,218,,"31,292",,,,ISO-8859-1,,,Not in use country
+MYS,00,Malaysia,Asia Pacific Oceania,A,2024.3,,399,"47,225","28,903","4,323",4,,,ISO-8859-1,,Yes,street name use country
+MDV,00,Maldives,Asia Pacific Oceania,A,2011.3,,300,,"6,840",,,,,ISO-8859-1,,,street name use country
+MLI,00,Mali,Africa,C,2017.3,,"11,303",,,,,,,ISO-8859-1,,,Not in use country
+MLT,00,Malta,Western Europe,A,2014.4,,102,,"69,241",,51,,,ISO-8859-1,,Yes,street name use country
+MTQ,00,Martinique,Territories,B+,2024.3,,34,3,,2,,,,ISO-8859-1,,,Not in use country
+MRT,00,Mauritania,Africa,C,2015.4,,54,,,30,75,,ar,ISO-8859-6,,,Not in use country
+MUS,00,Mauritius,Africa,A,2016.1,,145,"2,069","2,397",173,35,,,ISO-8859-1,,,street name use country
+MYT,00,Mayotte,Territories,B+,2024.3,,17,6,,2,,,,ISO-8859-1,,,Not in use country
+MEX,00,Mexico,Central and South America,B+,2024.3,,"2,661","152,912",,"5,113",77,,,ISO-8859-1,,Yes,Not in use country
+MDA,00,Moldova,Eastern Europe,A,2019.1,,"1,063",,"3,859","1,265","1,901",Cyrl,,,,Yes,street name use country
+MCO,00,Monaco,Western Europe,A++,2018.1,,1,,"1,984",85,,,,ISO-8859-1,,,street name use country
+MNG,00,Mongolia,Asia Pacific Oceania,B+,2023.4,,331,"2,096",,42,727,Cyrl,mn,ISO-8859-5,,Yes,Not in use country
+MNE,00,Montenegro,Eastern Europe,B,2024.2,,111,,,56,,,,ISO-8859-2,,,Not in use country
+MSR,00,Montserrat,Territories,B,2014.2,,46,,,8,10,,,ISO-8859-1,,,Not in use country
+MAR,00,Morocco,Africa,B+,2024.1,Streets for 24 towns/cities,"1,783","19,588",,"5,183",22,,,,,Yes,Not in use country
+MOZ,00,Mozambique,Africa,B,2019.3,,167,,,,,,,ISO-8859-1,,,Not in use country
+MMR,00,Myanmar,Asia Pacific Oceania,B+,2022.1,,505,"17,270",,56,"17,793",Mymr,,ISO-8859-1,,,Not in use country
+MNP,00,N. Mariana Islands,Territories,B,2024.3,,3,,,,3,,,ISO-8859-1,,,Not in use country
+NAM,00,Namibia,Africa,B,2017.3,,95,,,456,2,,,ISO-8859-1,,,Not in use country
+NRU,00,Nauru,Asia Pacific Oceania,A,2019.1,,14,180,15,2,17,,,ISO-8859-1,,,street name use country
+NPL,00,Nepal,Asia Pacific Oceania,B,2020.1,,904,,,14,9,,,ISO-8859-1,,,Not in use country
+NLD,00,Netherlands,Western Europe,A++,2024.3,,"2,489",,"9,332,426",,1132,,,ISO-8859-1,,Yes,street name use country
+NCL,00,New Caledonia,Territories,B+,2024.3,,44,15,,10,,,,ISO-8859-1,,,Not in use country
+NZL,10,New Zealand,Asia Pacific Oceania,A++,2024.3,,496,852,"2,011,485","221,783","9,288",,,ISO-8859-1,PAF,Yes,street name use country
+NIC,00,Nicaragua,Central and South America,B+,2018.4,,152,925,,6,,,,ISO-8859-1,,,Not in use country
+NER,00,Niger,Africa,B,2017.2,,258,"33,374",,160,,,,ISO-8859-1,,,Not in use country
+NGA,00,Nigeria,Africa,A,2006.4,Streets for 24 towns/cities,"44,139",866,"5,299",9,,,,ISO-8859-1,,Yes,street name use country
+NIU,00,Niue,Asia Pacific Oceania,B,2017.4,,14,,,,,,,ISO-8859-1,,,Not in use country
+NFK,00,Norfolk Island,Territories,B,2014.4,,1,,,,,,,ISO-8859-1,,,Not in use country
+MKD,00,North Macedonia,Eastern Europe,A,2019.2,,308,"1,830","79,093",,,Cyrl,mk,,,Yes,street name use country
+NOR,20,Norway,Western Europe,A++,2024.3,Premise level data,"2,160",,"2,541,498","38,107",28930,,,ISO-8859-1,Adresseregister,,street name use country
+OMN,00,Oman,Asia Pacific Oceania,B,2020.1,,55,,,104,,Arab,ar,ISO-8859-6,,,Not in use country
+PAK,00,Pakistan,Asia Pacific Oceania,B,2020.4,,"3,277",,,"10,524",,,,ISO-8859-1,,,Not in use country
+PAN,00,Panama,Central and South America,C,2015.1,,"5,222",,,,,,,ISO-8859-1,,,Not in use country
+PNG,00,Papua New Guinea,Asia Pacific Oceania,B,2015.4,,88,,,40,6,,,ISO-8859-1,,,Not in use country
+PRY,00,Paraguay,Central and South America,B+,2018.4,Streets for the capital,254,"8,084",,966,,,,ISO-8859-1,,,Not in use country
+PER,00,Peru,Central and South America,B+,2023.1,,"1,834","96,613",,556,,,,ISO-8859-1,,Yes,Not in use country
+PHL,00,Philippines,Asia Pacific Oceania,A,2024.2,,"1,658","40,602","3,043",714,"1,667",,,ISO-8859-1,,,street name use country
+PCN,00,Pitcairn,Territories,A,2019.4,,1,,13,3,,,,ISO-8859-1,,,street name use country
+POL,10,Poland,Eastern Europe,A++,2024.1,,"50,580","6,248","8,536,023","7,928",13,,,ISO-8859-2,"Polish Address
+Directory",Yes,street name use country
+PRT,00,Portugal,Western Europe,A++,2024.3,,"3,840","30,372","2,644,674","9,399",198854,,,ISO-8859-1,,Yes,street name use country
+PRI,00,Puerto Rico,Territories,B+,2024.3,,129,"2,827",,162,"2,867",,,ISO-8859-1,,,Not in use country
+QAT,00,Qatar,Asia Pacific Oceania,C,2019.4,,8,,,"8,179",,Arab,,ISO-8859-6,,,Not in use country
+REU,00,Réunion,Territories,B+,2024.3,,24,61,,20,,,,ISO-8859-1,,,Not in use country
+ROU,00,Romania,Eastern Europe,A,2024.1,,"13,852",6,"49,144",410,8323,,,ISO-8859-1,,Yes,street name use country
+RUS,01,Russian Federation,Eastern Europe,A++,2024.3,,"324,840","251,807","105,051,914","58,444","58,533",Cyrl,ru,ISO-8859-5,,Yes,street name use country
+RWA,00,Rwanda,Africa,C,2017.3,,416,"3,427",39,19,7,,,ISO-8859-1,,,street name use country
+SGS,00,S. Georgia and S. Sandwich,Territories,B,2020.2,,9,,,,,,,ISO-8859-1,,,Not in use country
+BLM,00,Saint Barthélemy,Territories,B,2024.3,,1,,,,,,,ISO-8859-1,,,Not in use country
+SHN,00,Saint Helena,Territories,A,2019.3,,8,162,48,,16,,,ISO-8859-1,,,street name use country
+LCA,00,Saint Lucia,Central and South America,A,2019.4,,54,643,96,2,,,,ISO-8859-1,,,street name use country
+MAF,00,Saint Martin (FR),Territories,B,2024.3,,1,,,,,,,ISO-8859-1,,,Not in use country
+SPM,00,Saint Pierre and Miquelon,Territories,B+,2024.3,,2,3,,,,,,ISO-8859-1,,,Not in use country
+WSM,00,Samoa,Asia Pacific Oceania,B,2014.2,,219,,,10,,,,ISO-8859-1,,,Not in use country
+SMR,00,San Marino,Western Europe,A++,2019.4,,26,,"9,605",11,,,,ISO-8859-1,,,street name use country
+STP,00,Sao Tomé and Principe,Africa,C,2020.3,,465,,,,1,,,ISO-8859-1,,,Not in use country
+SAU,00,Saudi Arabia,Asia Pacific Oceania,B,2022.2,,"1,295",,,"37,611",44,Arab,ar,ISO-8859-6,,Yes,Not in use country
+SEN,00,Senegal,Africa,A,2018.4,,514,"2,964","1,455",363,,,,ISO-8859-1,,,street name use country
+SRB,00,Serbia,Eastern Europe,A+,2024.3,,"4,793",,"153,161","1,323","31,551",,,ISO-8859-2,,Yes,street name use country
+SYC,00,Seychelles,Africa,C,2015.4,,28,,,,10,,,ISO-8859-1,,,Not in use country
+SLE,00,Sierra Leone,Africa,C,2020.1,,212,"1,343",148,,,,,ISO-8859-1,,,street name use country
+SGP,10,Singapore,Asia Pacific Oceania,A++,2024.3,,1,,"147,851","30,767",30,,,ISO-8859-1,6D PCD,Yes,street name use country
+SXM,00,Sint Maarten,Territories,C,2019.3,,8,,"19,821",,,,,ISO-8859-1,,,street name use country
+SVK,00,Slovakia,Eastern Europe,A++,2024.3,,"2,928","1,804","1,675,207","12,764",171,,,ISO-8859-2,,Yes,street name use country
+SVN,00,Slovenia,Western Europe,A++,2024.1,,466,"6,629","572,452",562,10,,,ISO-8859-2,GURS,Yes,street name use country
+SLB,00,Solomon Islands,Asia Pacific Oceania,C,2017.1,Streets for the capital,15,,16,11,1,,,ISO-8859-1,,,street name use country
+SOM,00,Somalia,Africa,C,2019.4,,"9,359",,,,"2,143",Arab,,ISO-8859-6,,Yes,Not in use country
+ZAF,00,South Africa,Africa,B,2024.3,,"15,271",,,"9,786","6,421",,,ISO-8859-1,,Yes,Not in use country
+SSD,00,South Sudan,Africa,C,2016.2,,81,662,40,,58,,,ISO-8859-1,,,street name use country
+ESP,01,Spain,Western Europe,A+,2024.2,,"57,934","72,823","6,154,096","2,543",15454,,,ISO-8859-1,INE (www.ine.es),Yes,street name use country
+LKA,00,Sri Lanka,Asia Pacific Oceania,B+,2014.2,,"1,963",15,,,,,,ISO-8859-1,,Yes,Not in use country
+KNA,00,St. Kitts and Nevis,Central and South America,A,2017.4,,17,8,586,44,1,,,ISO-8859-1,,,street name use country
+VCT,00,St. Vincent and Grenadines,Central and South America,B,2019.4,,56,,,4,,,,ISO-8859-1,,,Not in use country
+LBY,00,State of Libya,Africa,C,2020.1,,775,,,,,Arab,,ISO-8859-1,,,Not in use country
+PSE,00,State of Palestine,Asia Pacific Oceania,B,2021.2,,544,,,266,16,Arab,,ISO-8859-6,,,Not in use country
+SDN,00,Sudan,Africa,B,2006.4,,222,,,,,,,ISO-8859-1,,,Not in use country
+SUR,00,Suriname,Central and South America,C,2017.4,,261,,,25,2,,,ISO-8859-1,,,Not in use country
+SJM,00,Svalbard and Jan Mayen,Territories,B,2024.3,,7,,,2,2,,,ISO-8859-1,,,Not in use country
+SWE,00,Sweden,Western Europe,A+,2024.3,,"1,743",,"1,130,651","5,483",297436,,,ISO-8859-1,,Yes,street name use country
+CHE,00,Switzerland,Western Europe,A++,2024.3,,"4,240","1,421","1,912,609","1,643",319213,,,ISO-8859-1,,Yes,street name use country
+SYR,00,Syria,Asia Pacific Oceania,C,2011.4,,94,,,,127,,ar,ISO-8859-6,,,Not in use country
+TJK,00,Tajikistan,Eastern Europe,B,2018.4,,506,,,,,Cyrl,,ISO-8859-5,,,Not in use country
+TZA,00,Tanzania,Africa,B+,2017.3,,"4,142","69,132",,,,,,ISO-8859-1,,,Not in use country
+THA,00,Thailand,Asia Pacific Oceania,B,2017.3,,971,,,246,37,Thai,th,ISO-8859-11,,,Not in use country
+TLS,00,Timor-Leste,Asia Pacific Oceania,B+,2020.4,,60,"2,221",,,,,,ISO-8859-1,,,Not in use country
+TGO,00,Togo,Africa,C,2020.1,,60,154,"3,837",82,61,,,ISO-8859-1,,,street name use country
+TON,00,Tonga,Asia Pacific Oceania,C,2019.2,,24,182,100,3,57,,,ISO-8859-1,,,street name use country
+TTO,00,Trinidad and Tobago,Central and South America,B,2018.4,,72,,,"21,662",,,,ISO-8859-1,,,Not in use country
+TAA,00,Tristan da Cunha,Territories,A++,2019.4,,1,,110,1,,,,ISO-8859-1,,,street name use country
+TUN,00,Tunisia,Africa,B,2022.4,,"4,628",,,"1,089","1,335",,ar,ISO-8859-6,,,Not in use country
+TUR,00,Türkiye,Western Europe,A,2024.3,,"2,776","56,195","1,244,561","5,600",3,,,ISO-8859-9,,Yes,street name use country
+TKM,00,Turkmenistan,Eastern Europe,B,2020.3,,79,,,154,,,,,,,Not in use country
+TCA,00,Turks and Caicos Is.,Territories,A,2017.2,,44,,54,2,,,,ISO-8859-1,,,street name use country
+TUV,00,Tuvalu,Asia Pacific Oceania,B,2023.3,,55,,,3,,,,ISO-8859-1,,,Not in use country
+UGA,00,Uganda,Africa,C,2020.1,,175,"5,803","1,182",214,,,,ISO-8859-1,,,street name use country
+UKR,00,Ukraine,Eastern Europe,A++,2024.3,,"25,881",,"10,150,295","28,938","51,226",Cyrl,uk,ISO-8859-5,,Yes,street name use country
+ARE,00,United Arab Emirates,Asia Pacific Oceania,C,2019.2,,7,,32,110,,Arab,ar,ISO-8859-6,,Yes,street name use country
+GBR,40,United Kingdom,Western Europe,A++,2024.3,,"1,482","29,299","31,888,036","1,349,930","1,244,105",,,ISO-8859-1,"PAF Premise level with
+Aliases",Yes,street name use country
+URY,00,Uruguay,Central and South America,A++,2024.3,Streets for the capital,"2,060","1,236","1,060,213",25,,,,ISO-8859-1,"catalogodatos.gub.uy
+(Direcciones Geográficas del Uruguay) / Open Data
+Licence–Uruguay",Yes,street name use country
+USA,10,USA,North America,A+,2024.3,,"39,882","2,827","47,532,387","1,283,085","36,735",,,ISO-8859-1,ZIP+4,Yes,street name use country
+UZB,00,Uzbekistan,Eastern Europe,A,2020.4,,"12,416",292,"5,036","4,736",821,Cyrl,ru,ISO-8859-5,,Yes,street name use country
+VUT,00,Vanuatu,Asia Pacific Oceania,C,2017.1,,48,,,67,,,,ISO-8859-1,,,Not in use country
+VAT,00,Vatican City,Western Europe,A,2024.3,,1,,46,2,1,,,ISO-8859-1,,,street name use country
+VEN,00,Venezuela,Central and South America,B+,2014.4,,335,"34,817",,299,3,,,ISO-8859-1,,,Not in use country
+VNM,00,Viet Nam,Asia Pacific Oceania,B+,2022.2,,776,"17,671",,"3,738",776,,,,,,Not in use country
+VGB,00,"Virgin Islands, British",Territories,B+,2021.3,,6,198,,,,,,ISO-8859-1,,,Not in use country
+VIR,00,"Virgin Islands, U.S.",Territories,B,2024.3,,9,,,29,5,,,ISO-8859-1,,,Not in use country
+WLF,00,Wallis and Futuna,Territories,A,2021.3,,5,36,42,2,,,,ISO-8859-1,,,street name use country
+YEM,00,Yemen,Asia Pacific Oceania,C,2019.4,,322,"6,253",,,,Arab,,ISO-8859-6,,,Not in use country
+ZMB,00,Zambia,Africa,C,2020.1,,223,,,,,,,ISO-8859-1,,,Not in use country
+ZWE,00,Zimbabwe,Africa,C,2019.3,,124,14,,192,,,,ISO-8859-1,,,Not in use country
