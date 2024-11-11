@@ -1,13 +1,11 @@
 ---
-day: 0
-creator: Your Name Here
-title: Give your map a title (optional)
-thumbnail: /assets/thumbnails/2024/00-template.png
-source: https://...  # Add a link to your source code here
+day: 16
+creator: Jun, Youngsang
+title: Median Household Income and Travel Time to Work Pattern in Three Eastern Cities
+thumbnail: /assets/thumbnails/2024/16-youngsang-jun.png
+source: https://github.com/yjmark/30DayMapChallenge_2024_Jun/blob/main/Day16_ACS_Income-TimeTravel/Day16_Jun.Rmd
 ---
 
-By default, your thumnail will be displayed here. If that's good enough, cool, just delete all of this text below the front matter.
+How is the relationship between commute time and household income distributed spatially? Today's map examines cases in Philadelphia, Washington D.C., and Boston.
+![Screenshot of interactive map](assets/thumbnails/16-youngsang-jun.jpg)
 
-But if you want to give any context for your map, feel free to all the **power** of [markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) to do so here. If you do, just make sure to also include some image(s) of your project, e.g.:
-
-![Screenshot of interactive map](assets/thumbnails/00-template.png)
