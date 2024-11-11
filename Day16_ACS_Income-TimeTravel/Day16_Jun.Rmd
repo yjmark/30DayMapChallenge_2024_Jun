@@ -1,0 +1,401 @@
+---
+title: "Day 16 Challenge - Bivariate Choropleth Map"
+author: "Jun, Youngsang"
+date: "November 16, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+Setup
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+# Load necessary libraries
+library(tidycensus)
+library(tidyverse)
+library(sf)
+library(terra)
+library(rgeoboundaries)
+remotes::install_github("mikejohnson51/climateR")
+library(climateR)
+library(biscale)
+library(cowplot)
+library(ggtext)
+library(showtext)
+library(glue)
+library(ggpattern)
+library(maps)
+#install.packages("maps")
+source("helper_functions.R")
+source("theme/theme_swd.R")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+``` 
+Data
+``` {r data, warning = FALSE, message = FALSE, results = "hide"}
+# Set ACS API Key
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+
+# Set State-level Background Map
+tracts22_pa <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="PA",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+tracts22_pa <- tracts22_pa %>%
+  st_transform(crs = 4326) %>%
+  st_union()
+
+tracts22_dcb <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="DC",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+tracts22_dcb <- tracts22_dcb %>%
+  st_transform(crs = 4326) %>%
+  st_union()
+
+tracts22_ma <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="MA",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+tracts22_ma <- tracts22_ma %>%
+  st_transform(crs = 4326) %>%
+  st_union()
+``` 
+
+```{r}
+# Get ACS data for 2022 for Philadelphia, DC, and Boston
+tracts22 <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
+                        "B19013_001E"), 
+          year=2022, state="PA",
+          county="Philadelphia", geometry=TRUE) %>%
+  st_transform(crs = 4326)
+
+tracts22_dc <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
+                        "B19013_001E"), 
+          year=2022, state="DC",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+
+tracts22_md <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
+                        "B19013_001E"), 
+          year=2022, state="MD",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+
+tracts22_va <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
+                        "B19013_001E"), 
+          year=2022, state="VA",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+
+tracts22_bo <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
+                        "B19013_001E"), 
+          year=2022, state="MA",
+          county="Suffolk", geometry=TRUE) %>%
+  st_transform(crs = 4326)
+
+tracts22 <- rbind(tracts22, tracts22_dc, tracts22_md, tracts22_va, tracts22_bo)
+
+back_DC <- tracts22 %>%
+  filter(str_detect(NAME, "; District of Columbia") | 
+         str_detect(NAME, "; Maryland") | 
+         str_detect(NAME, "; Virginia")) %>%
+  mutate(State = case_when(str_detect(NAME, "; District of Columbia") ~ "DC",
+                          str_detect(NAME, "; Maryland") ~ "MD",
+                          str_detect(NAME, "; Virginia") ~ "VA",
+                          TRUE ~ NA)) %>%
+  group_by(State) %>%
+  summarize(geometry = st_union(geometry)) %>%
+  ungroup()
+
+back_Bo <- tracts22 %>%
+  filter(str_detect(NAME, "; Massachusetts")) %>%
+  st_union()
+
+back_Phil <- tracts22 %>%
+  filter(str_detect(NAME, "; Pennsylvania")) %>%
+  st_union()
+
+#Data Wrangling
+tracts22 <- 
+  tracts22 %>%
+  dplyr::select(  -moe) %>%
+  spread(key = variable, value = estimate) %>%
+  rename(TotalPop = B08134_001, 
+         B_less_than_10_min = B08134_002, 
+         B10_14_min = B08134_003,
+         B15_19_min = B08134_004,
+         B20_24_min = B08134_005,
+         B25_29_min = B08134_006,
+         B30_34_min = B08134_007,
+         B35_44_min = B08134_008,         
+         B45_59_min = B08134_009,
+         B60_min_or_more = B08134_010,        
+         MedHHInc = B19013_001) 
+tracts22 <- 
+  tracts22 %>%
+  mutate(travelTime = ifelse(TotalPop > 0, ((B_less_than_10_min*5 + B10_14_min*12.5 + B15_19_min*17.5+B20_24_min*22.5+B25_29_min*27.5+B30_34_min*32.5+B35_44_min*40+B45_59_min*52.5+B60_min_or_more*67.5) / TotalPop), 0)) 
+
+tracts22 <-  tracts22 %>%
+  filter(!is.na(tracts22$MedHHInc))
+
+var1 <- tracts22$MedHHInc
+var2 <- tracts22$travelTime
+
+tracts22 <-  tracts22 %>%
+  mutate(MedHHInc_norm = (var1 - min(var1)) / (max(var1) - min(var1)),
+         travelTime_norm = (var2 - min(var2)) / (max(var2) - min(var2)))
+```
+
+```{r}
+# Define the color palette for the bivariate map
+bivariate_color <- function(var1, var2) {
+  rgb(
+    (211-53*var1-145*var2+36*var1*var2)/255,
+    (211-158*var1-90*var2+67*var1*var2)/255,
+    (211-140*var1-35*var2+23*var1*var2)/255,
+    maxColorValue = 1)
+}
+
+tracts22$bivariate_color <- mapply(bivariate_color, tracts22$MedHHInc_norm, tracts22$travelTime_norm)
+
+tracts22_phil <- tracts22 %>%
+  filter(str_detect(NAME, "; Pennsylvania"))
+
+tracts22_bo <- tracts22 %>%
+  filter(str_detect(NAME, "; Massachusetts"))
+
+tracts22_dc <- tracts22 %>%
+  filter(str_detect(NAME, "; District of Columbia"))
+
+pallet <- "DkViolet2"
+
+# Define colors for the annotations
+blue_color <- "#4279B0"  # Blue for long travel time and low income
+red_color <- "#9E3547"  # Red for short travel time and high income
+gray_color <- "#D3D3D3"  # Gray for short travel time and low income
+purple_color <- "#311E3B"  # Purple for long travel time and high income
+
+# Define the title using colored text in subtitle with ggtext
+title_text <- "Median Household Income and Travel Time to Work Pattern"
+
+annotation_text_LL <- glue("Long Travel Time \n Low Med Income")
+annotation_text_LH <- glue("Short Travel Time \n High Med Income")
+annotation_text_HL <- glue("Short Travel Time \n Low Med Income")
+annotation_text_HH <- glue("Long Travel Time \n High Med Income")
+```
+
+
+
+Graph
+``` {r graph, warning = FALSE, message = FALSE}
+# Create the map with colored subtitle, annotations, and leader lines
+map1 <- ggplot() +
+  geom_sf(data = tracts22_pa, fill = "#dddddd", color = "#fff") +
+  theme_void(base_size = 14) +
+  xlim(-75.3, -74.95) +  # Set x-axis limits for the map (longitude range)
+  ylim(39.85, 40.15) +  # Set y-axis limits for the map (latitude range)
+#  geom_sf( fill="#939393", color=NA)+
+  geom_sf_pattern(data=back_Phil,  
+                  fill = "#939393",                
+                  pattern = "stripe",            
+                  pattern_fill = "#939393",         
+                  pattern_angle = 45,           
+                  pattern_density = 0.2,         
+                  pattern_spacing = 0.01,
+                  pattern_alpha = 0.3
+  ) +
+  geom_sf(data=tracts22_phil, aes(fill=bivariate_color), color=NA)+
+  scale_fill_identity() +
+  geom_sf(data=st_union(back_Phil), fill=NA, color="#fff")+
+
+# Title and subtitle using ggtext for colored styling
+  labs(title = title_text,
+       subtitle = "Philadelphia",
+       caption = "Source: U.S. Census Bureau ACS 2022\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge") +
+  theme(plot.title = element_text(hjust = 0, size=10, lineheight=0.8),
+        plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  # Use element_markdown for ggtext
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto")) +
+
+  # Add the colored annotations with leader lines
+#  annotate("text", x = -75.09, y = 39.89, label = annotation_text_LH, color = red_color, size = 2.5, family = "roboto",  fontface = "bold", hjust=0) +
+  annotate("text", x = -75.15, y = 40.124, label = annotation_text_LL, color = blue_color, size = 2, family = "roboto",   fontface = "bold", lineheight=0.9) +
+  annotate("text", x = -75.08, y = 39.96, label = annotation_text_HL, color = gray_color, size = 2, family = "roboto",   fontface = "bold", hjust=0, lineheight=0.9) +
+#  annotate("text", x = -75.17, y = 39.85, label = annotation_text_HH, color = purple_color, size = 2.5, family = "roboto",   fontface = "bold", hjust=0) +
+  
+  # Add leader lines to the annotations
+#  geom_segment(aes(x = -75.165, xend = -75.1, y = 39.948, yend = 39.90), color = red_color, size = 0.8) +
+  geom_segment(aes(x = -75.15, xend = -75.15, y = 40.02, yend = 40.10), color = blue_color, size = 0.8) +
+#  geom_segment(aes(x = -75.168, xend = -75.18, y = 39.952, yend = 39.85), color = purple_color, size = 0.8) +
+  geom_segment(aes(x = -75.19, xend = -75.10, y = 39.95, yend = 39.96), color = gray_color, size = 0.8) +
+
+
+# Add point lines to the end of the line
+#  geom_point(aes(x = -75.1, y = 39.90), color = red_color, size = 3) +
+  geom_point(aes(x = -75.15, y = 40.10), color = blue_color, size = 3) +
+#  geom_point(aes(x = -75.18, y = 39.85), color = purple_color, size = 3) +
+  geom_point(aes(x = -75.1, y = 39.96), color = gray_color, size = 3)
+  
+# Legend
+legend <- bi_legend(pal = pallet,   
+                    flip_axes = FALSE,
+                    rotate_pal = FALSE,
+                    dim = 4,
+                    xlab = "Median Household Income",
+                    ylab = "Travel Time to Work",
+                    size = 4) +
+  theme(
+    panel.background = element_rect(fill = NA, color = NA), 
+    plot.background = element_rect(fill = NA, color = NA)  
+  )
+
+# Combine map and legend using cowplot
+finalPlot <- ggdraw() +
+  draw_plot(map1, 0, 0, 1, 1) 
+```
+
+```{r}
+# Create the map with colored subtitle, annotations, and leader lines
+map2 <- ggplot() +
+  geom_sf(data = back_DC, fill = "#dddddd", color = "#fff") +
+  theme_void(base_size = 14) +
+  xlim(-77.13, -76.9) +  # Set x-axis limits for the map (longitude range)
+  ylim(38.8, 39.0) +  # Set y-axis limits for the map (latitude range)
+#  geom_sf( fill="#939393", color=NA)+
+  geom_sf_pattern(data=tracts22_dcb,  
+                  fill = "#939393",                
+                  pattern = "stripe",            
+                  pattern_fill = "#939393",         
+                  pattern_angle = 45,           
+                  pattern_density = 0.2,         
+                  pattern_spacing = 0.01,
+                  pattern_alpha = 0.3
+  ) +
+  geom_sf(data=tracts22_dc, aes(fill=bivariate_color), color=NA)+
+  scale_fill_identity() +
+  geom_sf(data=back_DC, fill=NA, color="#fff")+
+
+# Title and subtitle using ggtext for colored styling
+  labs(title = "",
+       subtitle = "District of Columbia",
+       caption = "\n") +
+  theme(plot.title = element_text(hjust = 0.38, size=10, face = "bold", lineheight=0.8),
+        plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  # Use element_markdown for ggtext
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto")) +
+##+
+
+  # Add the colored annotations with leader lines
+  annotate("text", x = -77.13, y = 38.83, label = annotation_text_LH, color = red_color, size = 2,  family = "roboto",   fontface = "bold", hjust=0, lineheight=0.9) +
+##  annotate("text", x = -75.15, y = 40.114, label = annotation_text_LL, color = blue_color, size = 2.5, fontface = "bold") +
+##  annotate("text", x = -75.09, y = 39.96, label = annotation_text_HL, color = gray_color, size = 2.5,   fontface = "bold", hjust=0) +
+##  annotate("text", x = -75.17, y = 39.85, label = annotation_text_HH, color = purple_color, size = 2.5,   fontface = "bold", hjust=0) +
+  
+  # Add leader lines to the annotations
+  geom_segment(aes(x = -77.085, xend = -77.085, y = 38.928, yend = 38.85), color = red_color, size = 0.8) +
+##  geom_segment(aes(x = -75.15, xend = -75.15, y = 40.02, yend = 40.10), color = blue_color, size = 0.8) +
+##  geom_segment(aes(x = -75.168, xend = -75.18, y = 39.952, yend = 39.85), color = purple_color, size = 0.8) +
+##  geom_segment(aes(x = -75.19, xend = -75.10, y = 39.95, yend = 39.96), color = gray_color, size = 0.8) +
+
+
+# Add point lines to the end of the line
+  geom_point(aes(x = -77.085, y = 38.85), color = red_color, size = 3) 
+##  geom_point(aes(x = -75.15, y = 40.10), color = blue_color, size = 3) +
+##  geom_point(aes(x = -75.18, y = 39.85), color = purple_color, size = 3) +
+##  geom_point(aes(x = -75.1, y = 39.96), color = gray_color, size = 3)
+
+
+```
+
+
+```{r}
+# Create the map with colored subtitle, annotations, and leader lines
+map3 <- ggplot() +
+  geom_sf(data = tracts22_ma, fill = "#dddddd", color = "#fff") +
+  theme_void(base_size = 14) +
+  xlim(-71.2, -70.93) +  # Set x-axis limits for the map (longitude range)
+  ylim(42.23, 42.45) +  # Set y-axis limits for the map (latitude range)
+#  geom_sf( fill="#939393", color=NA)+
+  geom_sf_pattern(data=back_Bo,  
+                  fill = "#939393",                
+                  pattern = "stripe",            
+                  pattern_fill = "#939393",         
+                  pattern_angle = 45,           
+                  pattern_density = 0.2,         
+                  pattern_spacing = 0.01,
+                  pattern_alpha = 0.3
+  ) +
+  geom_sf(data=tracts22_bo, aes(fill=bivariate_color), color=NA)+
+  scale_fill_identity() +
+  geom_sf(data=back_Bo, fill=NA, color="#fff")+
+
+# Title and subtitle using ggtext for colored styling
+  labs(title = "",
+       subtitle = "Boston",
+       caption = "\n") +
+  theme(plot.title = element_text(hjust = 0.38, size=10, face = "bold", lineheight=0.8),
+        plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  # Use element_markdown for ggtext
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto")) +
+##+
+
+  # Add the colored annotations with leader lines
+##  annotate("text", x = -75.09, y = 39.89, label = annotation_text_LH, color = red_color, size = 2.5,  fontface = "bold", hjust=0) +
+##  annotate("text", x = -75.15, y = 40.114, label = annotation_text_LL, color = blue_color, size = 2.5,   fontface = "bold") +
+##  annotate("text", x = -75.09, y = 39.96, label = annotation_text_HL, color = gray_color, size = 2.5, fontface = "bold", hjust=0) +
+  annotate("text", x = -71.17, y = 42.4, label = annotation_text_HH, color = purple_color, size = 2, family = "roboto",  fontface = "bold", hjust=0, lineheight=0.9) +
+  
+  # Add leader lines to the annotations
+##  geom_segment(aes(x = -75.165, xend = -75.1, y = 39.948, yend = 39.90), color = red_color, size = 0.8) +
+##  geom_segment(aes(x = -75.15, xend = -75.15, y = 40.02, yend = 40.10), color = blue_color, size = 0.8) +
+  geom_segment(aes(x = -71.168, xend = -71.18, y = 42.352, yend = 42.4), color = purple_color, size = 0.8)+ 
+##  geom_segment(aes(x = -75.19, xend = -75.10, y = 39.95, yend = 39.96), color = gray_color, size = 0.8) +
+
+
+# Add point lines to the end of the line
+##  geom_point(aes(x = -75.1, y = 39.90), color = red_color, size = 3) +
+##  geom_point(aes(x = -75.15, y = 40.10), color = blue_color, size = 3) +
+  geom_point(aes(x = -71.18, y = 42.4), color = purple_color, size = 3) 
+##  geom_point(aes(x = -75.1, y = 39.96), color = gray_color, size = 3)
+  
+
+```
+
+```{r}
+#Final Plot
+# Combine map and legend using cowplot
+maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
+finalMap <- ggdraw() +
+  draw_plot(maps, 0, 0, 1, 1) +  
+  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
+ 
+finalMap %>% 
+  ggsave(filename = "16-youngsang-jun.jpg", width = 6, height = 4, dpi = 300)
+
+png("16-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
+print(finalMap)
+dev.off()
+```
+
