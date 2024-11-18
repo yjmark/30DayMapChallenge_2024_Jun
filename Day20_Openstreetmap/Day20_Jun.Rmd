@@ -1,0 +1,100 @@
+---
+title: "Day 20 Challenge - Exploring Historic Sites in Philadelphia with OpenStreetMap"
+author: "Jun, Youngsang"
+date: "November 20, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+Today's map shows the locations of Philadelphia's historic sites visualized on OpenStreetMap. Today, all properties of historical places in Philadelphia is managed by the City of Philadelphia, by undergoing a nomination process and being added to the register. 
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidycensus)
+library(mapview)
+library(sf)
+library(viridis)
+library(ggtext)
+library(showtext)
+library(maps)
+library(ggplot2)
+library(cowplot)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=10, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none") 
+```
+
+```{r dataload, warning = FALSE, message = FALSE, result='hide'}
+# Set ACS API Key
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+
+tracts22_pa <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="PA",
+          geometry=TRUE, progress=FALSE) %>%
+    st_union() %>%
+  st_transform(crs = 'EPSG:32618')
+
+tracts22_nj <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="NJ",
+          geometry=TRUE, progress=FALSE) %>%
+  st_union() %>%
+  st_transform(crs = 'EPSG:32618')
+
+tracts20 <-  
+  get_acs(geography = "tract",
+          variables = c("B25034_001E"), 
+          year=2020, state="PA",
+          county="Philadelphia", geometry=TRUE, progress=FALSE) %>% 
+  st_as_sf(crs = 4326)%>%
+  st_transform('EPSG:32618') # Use NAD 83 CRS
+
+historicPlaces <- readxl::read_xlsx('./data/Phila-Reg-No-OPA-6-26-2024.xlsx')
+historicPlaces_trans <- historicPlaces %>%
+  st_as_sf(coords=c("lng","lat"), crs=4326) %>%
+  st_transform('EPSG:32618') # Use NAD 83 CRS
+```
+
+```{r map1, warning = FALSE, message = FALSE}
+mv <- mapview(st_union(tracts20), label = NULL, popup = NULL, lwd = 3, color = "#0FF", col.regions = "transparent", alpha = 0.7, map.types = "OpenStreetMap") + mapview(historicPlaces_trans, label = "Resource Name", col.regions = "red", alpha = 1.0, cex = 3, layer.name="Historic Place")
+
+mv
+```
+
+```{r}
+ggplot() + 
+  geom_sf(data = tracts22_pa, fill = "#ddd", color = "#fff") +
+    geom_sf(data = tracts22_nj, fill = "#ccc", color = "#fff") +
+    xlim(475000, 505000) +  # Set x-axis limits for the map (longitude range)
+  ylim(4412000, 4443000) +  # Set y-axis limits for the map (latitude range)
+  theme_void(base_size = 14) +
+  geom_sf(data=st_union(tracts20), color="#fff") +
+  geom_point(
+    data=historicPlaces_trans, aes(color="red", geometry=geometry), stat = "sf_coordinates")+
+  labs(
+    title = "Historical Places in Philadelphia",
+    subtitle = "June, 2024",
+    caption = "Data: City of Philadelphia\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day25") +
+  plotTheme
+```
+
+
+Reference:
+https://www.phila.gov/documents/philadelphia-register-of-historic-places/
+
