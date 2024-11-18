@@ -1,0 +1,147 @@
+---
+title: "Day 25 Challenge - Heat Map"
+author: "Jun, Youngsang"
+date: "November 25, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+library(viridis)
+library(ggtext)
+library(showtext)
+library(maps)
+library(ggplot2)
+library(cowplot)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=10, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none") 
+```
+
+```{r dataload, warning = FALSE, message = FALSE}
+# Load Police District Data in Philadelphia
+philly.policesec <- st_read("./Data/phillyPoliceSector/PhiladelphiaPoliceSectorsBoundaries201202.shp") %>% 
+  st_as_sf(crs = 4326)%>%
+  st_transform(crs = 'ESRI:102728') 
+
+philly.police <- st_read("https://opendata.arcgis.com/api/v3/datasets/62ec63afb8824a15953399b1fa819df2_0/downloads/data?format=geojson&spatialRefId=4326&where=1%3D1") %>% 
+  st_as_sf(crs = 4326)%>%
+  st_transform(crs = 'ESRI:102728') 
+
+# Load Police Stations Data in Philadelphia
+philly.policestn <- st_read("https://opendata.arcgis.com/datasets/7e522339d7c24e8ea5f2c7780291c315_0.geojson") %>% 
+  st_as_sf(crs = 4326)%>%
+  st_transform(crs = 'ESRI:102728') 
+
+# Create Philadelphia Boundary Data
+philly.boundary <- st_union(philly.police)%>%
+  st_transform(crs = 'ESRI:102728') 
+
+philly.crime <- read.csv("https://phl.carto.com/api/v2/sql?filename=incidents_part1_part2&format=csv&q=SELECT%20*%20,%20ST_Y(the_geom)%20AS%20lat,%20ST_X(the_geom)%20AS%20lng%20FROM%20incidents_part1_part2%20WHERE%20dispatch_date_time%20%3E=%20%272024-01-01%27%20AND%20dispatch_date_time%20%3C%20%272025-01-01%27")
+
+philly.crime <-philly.crime[!is.na(philly.crime$lat), ] %>%
+    st_as_sf(coords = c("lng", "lat"), crs = 4326, agr = "constant")%>%
+    st_transform('ESRI:102728') %>% 
+    distinct() 
+
+crimeNarcotics <- philly.crime %>% 
+  filter(text_general_code == "Narcotic / Drug Law Violations") # 2024 Narcotic Violations Crime data
+
+crimeBurglary <- philly.crime %>% 
+  filter(text_general_code == "Burglary Residential" | text_general_code == "Burglary Non-Residential" ) # 2024 Burglary data
+
+# ggplot(data=crimeBurglary) + geom_sf() + theme_void()
+
+crimeTheft <- philly.crime %>% 
+  filter(text_general_code == "Thefts" | text_general_code == "Theft from Vehicle" ) # 2024 Theft data
+
+crimeNarcotics <- subset(crimeNarcotics, the_geom!='0101000020E6100000A5A31CCC262054C0A8BE77C4B61C4540') #error
+crimeNarcotics <- subset(crimeNarcotics, the_geom!='0101000020E6100000E3D840DB262054C0CCE8EC09B71C4540') #error
+crimeBurglary <- subset(crimeBurglary, the_geom!='0101000020E610000000000000000000000000000000000000') #error
+crimeTheft <- subset(crimeTheft, the_geom!='0101000020E610000000000000000000000000000000000000') #error
+crimeTheft <- subset(crimeTheft, the_geom!='0101000020E6100000E3D840DB262054C0CCE8EC09B71C4540') #error
+
+```
+
+```{r map1, warning = FALSE, message = FALSE}
+map1<- ggplot() + 
+  geom_sf(data = philly.police, color="white") +
+  geom_sf(data= philly.policesec, fill="transparent", color="white", linetype = "dotted") +
+
+  geom_sf(data = crimeNarcotics, colour="#ccc", size=0.1, show.legend = "point") +
+    geom_sf(data= philly.policestn, color="#335599", size=1) +
+  stat_density2d(data = data.frame(st_coordinates(crimeNarcotics)), 
+                 aes(X, Y, fill = ..level.., alpha = ..level..),
+                 size = 0.01, bins = 40, geom = 'polygon') +
+  scale_fill_viridis(name="") +
+  scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
+# Title and subtitle using ggtext for colored styling
+  labs(title = "Philadelphia 2024 Crime Incidents Heat Map",
+       subtitle = "Narcotic / Drug Law Violations",
+       caption = "Source: Philadelphia Police Department, Blue dots denote police stations, solid lines denots police districts, and dotted lines police sectors\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day25") +
+  theme_void()+plotTheme
+
+map2<- ggplot() + 
+  geom_sf(data = philly.police, color="white") +
+  geom_sf(data= philly.policesec, fill="transparent", color="white", linetype = "dotted") +
+
+  geom_sf(data = crimeBurglary, colour="#ccc", size=0.1, show.legend = "point") +
+    geom_sf(data= philly.policestn, color="#335599", size=1) +
+  stat_density2d(data = data.frame(st_coordinates(crimeBurglary)), 
+                 aes(X, Y, fill = ..level.., alpha = ..level..),
+                 size = 0.01, bins = 40, geom = 'polygon') +
+  scale_fill_viridis(name="") +
+  scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
+# Title and subtitle using ggtext for colored styling
+  labs(title = "",
+       subtitle = "Burglary Residential / Non-Residential",
+       caption = "\n") +
+  theme_void()+plotTheme
+
+map3<- ggplot() + 
+  geom_sf(data = philly.police, color="white") +
+  geom_sf(data= philly.policesec, fill="transparent", color="white", linetype = "dotted") +
+
+  geom_sf(data = crimeTheft, colour="#ccc", size=0.1, show.legend = "point") +
+    geom_sf(data= philly.policestn, color="#335599", size=1) +
+  stat_density2d(data = data.frame(st_coordinates(crimeTheft)), 
+                 aes(X, Y, fill = ..level.., alpha = ..level..),
+                 size = 0.01, bins = 40, geom = 'polygon') +
+  scale_fill_viridis(name="") +
+  scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
+# Title and subtitle using ggtext for colored styling
+  labs(title = "",
+       subtitle = "Thefts / Theft from Vehicle",
+       caption = "\n") +
+  theme_void()+plotTheme
+```
+
+```{r mapexport, warning = FALSE, message = FALSE}
+maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
+finalMap <- ggdraw() +
+  draw_plot(maps, 0, 0, 1, 1) +  
+  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
+ 
+finalMap %>% 
+  ggsave(filename = "25-youngsang-jun.jpg", width = 6, height = 4, dpi = 300)
+
+png("25-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
+print(finalMap)
+dev.off()
+```
+
