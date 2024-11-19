@@ -24,6 +24,7 @@ library(showtext)
 library(maps)
 library(ggplot2)
 library(cowplot)
+library(httr)
 remotes::install_github("mikejohnson51/climateR")
 font_add_google("Roboto", "roboto")
 showtext_auto(TRUE)
@@ -69,29 +70,79 @@ historicPlaces <- readxl::read_xlsx('./data/Phila-Reg-No-OPA-6-26-2024.xlsx')
 historicPlaces_trans <- historicPlaces %>%
   st_as_sf(coords=c("lng","lat"), crs=4326) %>%
   st_transform('EPSG:32618') # Use NAD 83 CRS
+
+url1 <- "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/Historic_Streets/FeatureServer/0/query?where=1=1&outFields=*&f=geojson"
+
+url2 <- "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/HistoricDistricts_Local/FeatureServer/0/query?where=1=1&outFields=*&f=geojson"
+
+url3 <- "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/Historic_sites_PhilReg/FeatureServer/0/query?where=1=1&outFields=*&f=geojson"
+response1 <- GET(url1)
+response2 <- GET(url2)
+response3 <- GET(url3)
+json_data <- content(response1, as = "text", encoding = "UTF-8", progress=FALSE)
+json_data2 <- content(response2, as = "text", encoding = "UTF-8", progress=FALSE)
+json_data3 <- content(response3, as = "text", encoding = "UTF-8", progress=FALSE)
+
+
+historicStreets <- st_read(json_data) %>%
+  st_as_sf(crs = 4326) %>%
+  st_transform(crs = 'EPSG:32618') 
+
+historicDistricts <- st_read(json_data2) %>%
+  st_as_sf(crs = 4326) %>%
+  st_transform(crs = 'EPSG:32618') 
+
+historicSites <- st_read(json_data3) %>%
+  st_as_sf(crs = 4326) %>%
+  st_transform(crs = 'EPSG:32618') 
 ```
 
 ```{r map1, warning = FALSE, message = FALSE}
-mv <- mapview(st_union(tracts20), label = NULL, popup = NULL, lwd = 3, color = "#0FF", col.regions = "transparent", alpha = 0.7, map.types = "OpenStreetMap") + mapview(historicPlaces_trans, label = "Resource Name", col.regions = "red", alpha = 1.0, cex = 3, layer.name="Historic Place")
+mv <- mapview(st_union(tracts20), label = NULL, popup = NULL, lwd = 3, color = "#0FF", col.regions = "transparent", alpha = 0.7, map.types = "OpenStreetMap") +
+  mapview(historicPlaces_trans, label = "Resource Name", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Sites (additional)")+
+  mapview(historicDistricts, label = "NAME", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Districts")+
+  mapview(historicStreets, label = "ON_STREET", col.regions = "#00f", alpha = 1.0, cex = 3, layer.name="Historic Streets")+
+  mapview(historicSites, label = "LOC", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Sites")
 
 mv
 ```
 
 ```{r}
-ggplot() + 
-  geom_sf(data = tracts22_pa, fill = "#ddd", color = "#fff") +
+historicDistricts$category <- "Districts and Sites"
+historicStreets$category <- "Streets"
+historicSites$category <- "Districts and Sites"
+historicSites$datemdy <- mdy(historicSites$DISTRICTDESDATE)
+historicSites$year <- year(historicSites$datemdy)
+
+category_colors <- c(
+  "Districts and Sites" = "#335599",      
+  "Streets" = "#3357FF",       
+  "Additional Sites" = "#FFC300"  
+)
+
+map4 <- ggplot() + 
+    geom_sf(data = tracts22_pa, fill = "#ddd", color = "#fff") +
     geom_sf(data = tracts22_nj, fill = "#ccc", color = "#fff") +
-    xlim(475000, 505000) +  # Set x-axis limits for the map (longitude range)
+  geom_sf(data=st_union(tracts20), color="#fff") +
+  
+  geom_sf(data=historicDistricts, aes(color = category)) +
+  geom_sf(data=historicStreets, aes(color = category)) +
+  geom_sf(data=historicSites, aes(color = category)) +
+  geom_point(
+    data=historicPlaces_trans, aes(geometry=geometry, color = "Additional Sites"), 
+    stat = "sf_coordinates", size=0.5)+
+   xlim(475000, 505000) +  # Set x-axis limits for the map (longitude range)
   ylim(4412000, 4443000) +  # Set y-axis limits for the map (latitude range)
   theme_void(base_size = 14) +
-  geom_sf(data=st_union(tracts20), color="#fff") +
-  geom_point(
-    data=historicPlaces_trans, aes(color="red", geometry=geometry), stat = "sf_coordinates")+
   labs(
     title = "Historical Places in Philadelphia",
-    subtitle = "June, 2024",
-    caption = "Data: City of Philadelphia\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day25") +
+    subtitle = "October, 2024",
+    caption = "Data: City of Philadelphia",
+    color = "") +
+  scale_color_manual(values = category_colors) +
   plotTheme
+
+map4
 ```
 
 
