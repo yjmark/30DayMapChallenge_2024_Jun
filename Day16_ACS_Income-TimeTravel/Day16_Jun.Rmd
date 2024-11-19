@@ -28,8 +28,8 @@ library(glue)
 library(ggpattern)
 library(maps)
 #install.packages("maps")
-source("helper_functions.R")
-source("theme/theme_swd.R")
+
+
 font_add_google("Roboto", "roboto")
 showtext_auto(TRUE)
 ``` 
@@ -46,6 +46,16 @@ tracts22_pa <-
           geometry=TRUE) %>%
   st_transform(crs = 4326)
 tracts22_pa <- tracts22_pa %>%
+  st_transform(crs = 4326) %>%
+  st_union()
+
+tracts22_nj <-  
+  get_acs(geography = "tract",
+          variables = c("B08134_001E"), 
+          year=2022, state="NJ",
+          geometry=TRUE) %>%
+  st_transform(crs = 4326)
+tracts22_nj <- tracts22_nj %>%
   st_transform(crs = 4326) %>%
   st_union()
 
@@ -191,7 +201,7 @@ pallet <- "DkViolet2"
 # Define colors for the annotations
 blue_color <- "#4279B0"  # Blue for long travel time and low income
 red_color <- "#9E3547"  # Red for short travel time and high income
-gray_color <- "#D3D3D3"  # Gray for short travel time and low income
+gray_color <- "#a3a3a3"  # Gray for short travel time and low income
 purple_color <- "#311E3B"  # Purple for long travel time and high income
 
 # Define the title using colored text in subtitle with ggtext
@@ -210,6 +220,7 @@ Graph
 # Create the map with colored subtitle, annotations, and leader lines
 map1 <- ggplot() +
   geom_sf(data = tracts22_pa, fill = "#dddddd", color = "#fff") +
+    geom_sf(data = tracts22_nj, fill = "#dddddd", color = "#fff") +
   theme_void(base_size = 14) +
   xlim(-75.3, -74.95) +  # Set x-axis limits for the map (longitude range)
   ylim(39.85, 40.15) +  # Set y-axis limits for the map (latitude range)
