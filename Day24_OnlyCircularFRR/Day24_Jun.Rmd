@@ -1,0 +1,306 @@
+---
+title: "Day 24 Challenge - Only Circular Shapes"
+author: "Jun, Youngsang"
+date: "November 24, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidycensus)
+library(ggplot2)
+library(sf)
+library(mapview)
+library(stringr)
+library(dplyr)
+library(cowplot)
+library(viridis)
+library(ggtext)
+library(showtext)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=15, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 10, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 10, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none",
+        legend.title = element_text(size = 10))
+
+
+```
+
+
+```{r dataload, warning = FALSE, message = FALSE}
+load("./Data/TS2.1TimeSeriesOpExpSvcModeTOS2021.Rda")
+
+ntd19 <- subset(NTD.ts, Year == 2019) 
+ntd19 <- ntd19[!(is.na(ntd19$PMT) | ntd19$PMT == 0) & ntd19$Service=="DO", ] %>%
+  mutate(farerecoveryRatio = FARES/OPEXP_TOTAL) 
+ntd09 <- subset(NTD.ts, Year == 2009) 
+ntd09 <- ntd19[!(is.na(ntd09$PMT) | ntd09$PMT == 0) & ntd19$Service=="DO", ] %>%
+  mutate(farerecoveryRatio = FARES/OPEXP_TOTAL) 
+ntd99 <- subset(NTD.ts, Year == 1999) 
+ntd99 <- ntd19[!(is.na(ntd99$PMT) | ntd99$PMT == 0) & ntd19$Service=="DO", ] %>%
+  mutate(farerecoveryRatio = FARES/OPEXP_TOTAL) 
+
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+data <- get_acs(geography = "state", variables = "B01001_001", geometry = TRUE) %>%
+  st_transform(4326)
+
+# U.S. mainland
+usa_mainland <- data %>% 
+  filter(!NAME %in% c("Alaska", "Hawaii", "Puerto Rico"))
+
+# Alaska 
+usa_alaska <- data %>% 
+  filter(NAME == "Alaska")
+usa_alaska <- usa_alaska %>%
+  st_transform(crs = 5070) %>%
+  mutate(geometry = st_geometry(.) * 0.7 + c(-2500000, -2000000)) %>%  
+  st_set_crs(5070) 
+
+# Hawaii 
+usa_hawaii <- data %>% 
+  filter(NAME == "Hawaii")
+usa_hawaii <- usa_hawaii %>%
+  st_transform(crs = 5070) %>%
+  mutate(geometry = geometry * 0.7 + c(5200000, -1500000))  %>%  
+  st_set_crs(5070) 
+
+us_cities <- maps::us.cities %>%
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  st_transform(5070)
+us_cities$city <- str_trim(word(us_cities$name, 1, -2)) 
+
+
+
+ntd19_with_coords <- ntd19 %>%
+  left_join(us_cities, by = c("City" = "city"))
+ntd19_with_coords <- st_as_sf(ntd19_with_coords)
+  
+ntd19_with_coords <- ntd19_with_coords %>%
+  mutate(
+    lon = st_coordinates(.)[, 1],  
+    lat = st_coordinates(.)[, 2]   
+  )
+
+ntd09_with_coords <- ntd09 %>%
+  left_join(us_cities, by = c("City" = "city"))
+ntd09_with_coords <- st_as_sf(ntd09_with_coords)
+  
+ntd09_with_coords <- ntd09_with_coords %>%
+  mutate(
+    lon = st_coordinates(.)[, 1],  
+    lat = st_coordinates(.)[, 2]   
+  )
+
+ntd99_with_coords <- ntd99 %>%
+  left_join(us_cities, by = c("City" = "city"))
+ntd99_with_coords <- st_as_sf(ntd99_with_coords)
+  
+ntd99_with_coords <- ntd99_with_coords %>%
+  mutate(
+    lon = st_coordinates(.)[, 1],  
+    lat = st_coordinates(.)[, 2]   
+  )
+
+
+```
+
+```{r}
+alaska_plot19 <- ggplot() +
+  geom_sf(data = usa_alaska, color="#fff") +
+#  labs(title = "Alaska", x = NULL, y = NULL)+
+    geom_point(data = ntd19_with_coords %>% filter(State=="AK"), aes(x = lon*0.7-2500000, y = lat*0.7-2000000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd19_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+hawaii_plot19 <- ggplot() +
+  geom_sf(data = usa_hawaii, color="#fff") +
+#  labs(title = "Hawaii", x = NULL, y = NULL)+
+    geom_point(data = ntd19_with_coords %>% filter(State=="HI"), aes(x = lon*0.7+6200000, y = lat*0.7-2700000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd19_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+mainland_plot19 <- ggplot()+
+  geom_sf(data = usa_mainland, color="#fff")+
+    geom_point(data = ntd19_with_coords %>% filter(State!="AK"), aes(x = lon, y = lat, size = farerecoveryRatio, color = farerecoveryRatio), alpha = 0.6)+
+#  geom_text(data = ntd19_with_coords %>% filter(State!="AK"), color="#555", aes(x = lon, y = lat, label = City), hjust = -0.3, vjust = 0.5, size = 3, family="roboto")+
+  labs(
+    title = "",
+    subtitle = "\n\n\n\n2019",
+#    caption = "\n",
+    x = "Longitude",
+    y = "Latitude",
+    size = "",
+    color = ""
+  ) +
+  theme_void()+
+
+  scale_color_gradient(
+    low = "#44C", high = "#C44", 
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),  
+    name = ""
+  ) +
+  scale_size_continuous(
+    range = c(1, 10),
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),
+    name = ""
+  ) +
+  guides(
+    size = guide_legend(title = ""),  
+    color = guide_legend(title = "", override.aes = list(size = 5))  
+  ) +
+  coord_sf(crs = 5070)+
+   plotTheme+
+    theme(legend.position = "bottom")
+
+alaska_plot09 <- ggplot() +
+  geom_sf(data = usa_alaska, color="#fff") +
+#  labs(title = "Alaska", x = NULL, y = NULL)+
+    geom_point(data = ntd09_with_coords %>% filter(State=="AK"), aes(x = lon*0.7-2500000, y = lat*0.7-2000000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd09_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+hawaii_plot09 <- ggplot() +
+  geom_sf(data = usa_hawaii, color="#fff") +
+#  labs(title = "Hawaii", x = NULL, y = NULL)+
+    geom_point(data = ntd09_with_coords %>% filter(State=="HI"), aes(x = lon*0.7+6200000, y = lat*0.7-2700000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd09_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+mainland_plot09 <- ggplot()+
+  geom_sf(data = usa_mainland, color="#fff")+
+    geom_point(data = ntd09_with_coords %>% filter(State!="AK"), aes(x = lon, y = lat, size = farerecoveryRatio, color = farerecoveryRatio), alpha = 0.6)+
+#  geom_text(data = ntd09_with_coords %>% filter(State!="AK"), color="#555", aes(x = lon, y = lat, label = City), hjust = -0.3, vjust = 0.5, size = 3, family="roboto")+
+  labs(
+    title = "",
+    subtitle = "\n\n\n\n2009",
+    caption = "\n",
+    x = "Longitude",
+    y = "Latitude",
+    size = "",
+    color = ""
+  ) +
+  theme_void()+
+  theme(legend.position = "none")+
+
+  scale_color_gradient(
+    low = "#44C", high = "#C44", 
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),  
+    name = ""
+  ) +
+  scale_size_continuous(
+    range = c(1, 10),
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),
+    name = ""
+  ) +
+  guides(
+    size = guide_legend(title = ""),  
+    color = guide_legend(title = "", override.aes = list(size = 5))  
+  ) +
+  coord_sf(crs = 5070)+
+   plotTheme
+
+alaska_plot99 <- ggplot() +
+  geom_sf(data = usa_alaska, color="#fff") +
+#  labs(title = "Alaska", x = NULL, y = NULL)+
+    geom_point(data = ntd99_with_coords %>% filter(State=="AK"), aes(x = lon*0.7-2500000, y = lat*0.7-2000000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd99_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+hawaii_plot99 <- ggplot() +
+  geom_sf(data = usa_hawaii, color="#fff") +
+#  labs(title = "Hawaii", x = NULL, y = NULL)+
+    geom_point(data = ntd99_with_coords %>% filter(State=="HI"), aes(x = lon*0.7+6200000, y = lat*0.7-2700000, size = farerecoveryRatio), color = "blue", alpha = 0.6)+
+#  geom_text(data = ntd99_with_coords, aes(x = lon*0.7, y = lat*0.7, label = City), hjust = -0.3, vjust = 0.5, size = 3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+mainland_plot99 <- ggplot()+
+  geom_sf(data = usa_mainland, color="#fff")+
+    geom_point(data = ntd99_with_coords %>% filter(State!="AK"), aes(x = lon, y = lat, size = farerecoveryRatio, color = farerecoveryRatio), alpha = 0.6)+
+#  geom_text(data = ntd99_with_coords %>% filter(State!="AK"), color="#555", aes(x = lon, y = lat, label = City), hjust = -0.3, vjust = 0.5, size = 3, family="roboto")+
+  labs(
+    title = "Fare Recovery Ratio of U.S. Transit Agencies in 2009-2019",
+    subtitle = "The Fare Recovery Ratio (FRR) is a measure of the extent to which a transit agency’s operating\nexpenses are covered by passenger fares. The high FRR (close to 1) means that the agency is\nefficient of revenue generation from fares compared to the total operating costs of the transit.\n\n1999",
+    caption = "Source: National Transit Database\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day24",
+    x = "Longitude",
+    y = "Latitude",
+    size = "",
+    color = ""
+  ) +
+  theme_void()+
+  theme(legend.position = "none")+
+
+  scale_color_gradient(
+    low = "#44C", high = "#C44", 
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),  
+    name = ""
+  ) +
+  scale_size_continuous(
+    range = c(1, 10),
+    limits = c(0.0, 1.5),  
+    breaks = seq(0.0, 1.0, by = 0.5),
+    name = ""
+  ) +
+  guides(
+    size = guide_legend(title = ""),  
+    color = guide_legend(title = "", override.aes = list(size = 5))  
+  ) +
+  coord_sf(crs = 5070)+
+   plotTheme
+```
+
+
+```{r mapexport, warning = FALSE, message = FALSE}
+#maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
+#finalMap <- ggdraw() +
+#  draw_plot(maps, 0, 0, 1, 1) +  
+#  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
+
+
+final_plot99 <- ggdraw() +
+  draw_plot(mainland_plot99, 0, 0, 1, 1) +
+  draw_plot(hawaii_plot99, 0.05, 0.27, 0.3, 0.3)+
+  draw_plot(alaska_plot99, -0.05, 0.2, 0.3, 0.3) 
+
+final_plot09 <- ggdraw() +
+  draw_plot(mainland_plot09, 0, 0, 1, 1) +
+  draw_plot(hawaii_plot09, 0.05, 0.27, 0.3, 0.3) +
+  draw_plot(alaska_plot09, -0.05, 0.2, 0.3, 0.3) 
+
+final_plot19 <- ggdraw() +
+  draw_plot(mainland_plot19, 0, 0, 1, 1) +
+  draw_plot(hawaii_plot19, 0.05, 0.27, 0.3, 0.3) +
+  draw_plot(alaska_plot19, -0.05, 0.2, 0.3, 0.3) 
+ 
+
+final_plot <- plot_grid(final_plot99, final_plot09, final_plot19, ncol = 3, rel_widths = c(1, 1, 1))
+
+final_plot %>%
+  ggsave(filename = "24-youngsang-jun.jpg", width = 6, height = 3, dpi = 300)
+
+png("24-youngsang-jun.png", width = 6, height = 3, units = 'in', res = 300)
+print(final_plot)
+dev.off()
+```
