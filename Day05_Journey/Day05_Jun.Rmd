@@ -1,0 +1,196 @@
+---
+title: "Day 5 Challenge - Journey"
+author: "Jun, Youngsang"
+date: "November 5, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidycensus)
+library(ggplot2)
+library(sf)
+library(mapview)
+library(stringr)
+library(dplyr)
+library(cowplot)
+library(viridis)
+library(ggtext)
+library(showtext)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=15, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 10, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 10, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none",
+        legend.title = element_text(size = 10))
+
+
+```
+
+
+```{r dataload, warning = FALSE, message = FALSE}
+militaryBases <- st_read("./Data/NTAD_Military_Bases_updated_v2.geojson")%>%
+  st_transform(4326)%>%
+  st_transform(crs = 5070)%>%
+  filter(siteReportingComponent == "usa")
+
+# 알래스카 처리
+alaska <- militaryBases %>%
+  filter(stateNameCode == "AK") 
+
+# 하와이 처리
+hawaii <- militaryBases %>%
+  filter(stateNameCode == "HI")
+
+# 나머지 주 처리
+others <- militaryBases %>%
+  filter(!stateNameCode %in% c("AK", "HI", "GU", "PR"))
+
+# 데이터 결합
+militaryBases <- bind_rows(alaska, hawaii, others)
+militaryBases <- militaryBases %>%
+  mutate(
+    lon = st_coordinates(.)[, 1],  
+    lat = st_coordinates(.)[, 2]   
+  )
+
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+data <- get_acs(geography = "state", variables = "B01001_001", geometry = TRUE) %>%
+  st_transform(4326)
+
+# U.S. mainland
+usa_mainland <- data %>% 
+  filter(!NAME %in% c("Alaska", "Hawaii", "Puerto Rico"))
+
+# Alaska 
+usa_alaska <- data %>% 
+  filter(NAME == "Alaska")
+usa_alaska <- usa_alaska %>%
+  st_transform(crs = 5070) %>%
+  mutate(geometry = st_geometry(.) * 0.7 + c(-2500000, -2000000)) %>%  
+  st_set_crs(5070) 
+
+# Hawaii 
+usa_hawaii <- data %>% 
+  filter(NAME == "Hawaii")
+usa_hawaii <- usa_hawaii %>%
+  st_transform(crs = 5070) %>%
+  mutate(geometry = geometry * 0.7 + c(5200000, -1500000))  %>%  
+  st_set_crs(5070) 
+```
+
+```{r}
+
+# 주요 기지의 위치 추출
+arrow_data <- militaryBases %>%
+  filter(siteName %in% c("Fort Moore", "Fort Sill", "Fort Lewis")) 
+
+arrow_columns <- colnames(arrow_data)
+
+# 2. 새로운 행 생성 (기존 열 구조 유지)
+new_rows <- data.frame(
+  matrix(NA, nrow = 3, ncol = length(arrow_columns))  # 나머지 열을 NA로 채움
+)
+colnames(new_rows) <- arrow_columns
+
+new_rows$siteName = c("South Korea", "Afghanistan", "Germany")
+new_rows$geometry = st_sfc(
+  st_point(c(-2500000, 2900000)),
+  st_point(c(-2500000, 2700000)),
+  st_point(c(3000000, 3000000))
+)
+
+new_rows <- st_as_sf(new_rows, crs = st_crs(arrow_data)) %>%
+  mutate(
+    lon = st_coordinates(geometry)[, 1],  # x 좌표 (경도)
+    lat = st_coordinates(geometry)[, 2]   # y 좌표 (위도)
+  )
+arrow_data <- rbind(arrow_data, new_rows)
+
+stationOrder <- c("Fort Moore", "Afghanistan", "Fort Lewis", "South Korea", "Germany", "Fort Sill" )
+arrow_data <- arrow_data %>%
+  mutate(siteName = factor(siteName, levels = stationOrder)) %>%  # 순서를 factor로 지정
+  arrange(siteName)
+
+# 화살표 연결을 위한 데이터 생성
+arrow_coords <- data.frame(
+  x = c(arrow_data$lon[1], arrow_data$lon[2], arrow_data$lon[3], arrow_data$lon[4], arrow_data$lon[5], arrow_data$lon[6]),
+  y = c(arrow_data$lat[1], arrow_data$lat[2], arrow_data$lat[3], arrow_data$lat[4], arrow_data$lat[5], arrow_data$lat[6]),
+  xend = c(arrow_data$lon[2], arrow_data$lon[3], arrow_data$lon[4], arrow_data$lon[5], arrow_data$lon[6], NA),  # 다음 기지로 연결
+  yend = c(arrow_data$lat[2], arrow_data$lat[3], arrow_data$lat[4], arrow_data$lat[5], arrow_data$lat[6], NA)
+) %>%
+  filter(!is.na(xend) & !is.na(yend)) %>%  # NA 제거
+  filter(!(x == xend & y == yend))         # 시작점과 끝점이 동일한
+
+alaska_plot <- ggplot() +
+  geom_sf(data = usa_alaska, color="#fff") +
+#  labs(title = "Alaska", x = NULL, y = NULL)+
+    geom_point(data = militaryBases %>% filter(stateNameCode=="AK"), aes(x = lon*0.7-2500000, y = lat*0.7-2000000),  alpha = 0.3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+hawaii_plot <- ggplot() +
+  geom_sf(data = usa_hawaii, color="#fff") +
+#  labs(title = "Hawaii", x = NULL, y = NULL)+
+    geom_point(data = militaryBases %>% filter(stateNameCode=="HI"), aes(x = lon*0.7+6200000, y = lat*0.7-2700000),  alpha = 0.3)+
+  theme_void()+plotTheme+
+  theme(legend.position = "none")
+
+mainland_plot <- ggplot()+
+  geom_sf(data = usa_mainland, color="#fff")+
+    geom_point(data = militaryBases %>% filter(stateNameCode!="AK" & stateNameCode != "HI"), aes(x = lon, y = lat), alpha = 0.3)+
+  geom_point(data = militaryBases %>% filter(siteName=="Fort Moore"), aes(x = lon, y = lat), color = "#680", alpha = 1)+
+  geom_point(data = militaryBases %>% filter(siteName=="Fort Sill"), aes(x = lon, y = lat), color = "#680", alpha = 1)+
+  geom_point(data = militaryBases %>% filter(siteName=="Fort Lewis"), aes(x = lon, y = lat), color = "#680", alpha = 1)+
+  geom_text(data = militaryBases %>% filter(siteName=="Fort Moore"| siteName=="Fort Sill"| siteName=="Fort Lewis"), color="#555", aes(x = lon, y = lat, label = siteName), hjust = -0.2, vjust = 0.5, size = 3, family="roboto")+
+  geom_curve(data = arrow_coords, aes(x = x, y = y, xend = xend, yend = yend), 
+             curvature = 0.2, color = "#680", arrow = arrow(length = unit(0.3, "cm"))) +
+  labs(
+    title = "The Path of a U.S. Army Career",
+    subtitle = "Major Milestones in an example career path, by location",
+    caption = "\n\nInspired by https://www.americanprogress.org/article/infographic-fixing-the-force-the-path-of-a-military-career/\nBases in Puerto Rico, Guam, and outside the U.S. are excluded from the map\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day05",
+    x = "Longitude",
+    y = "Latitude",
+    size = "",
+    color = ""
+  ) +
+  theme_void()+
+  annotate("text", x = -2400000, y = 2800000, label = "Afghanistan", family="roboto", size = 3)+
+  annotate("text", x = -2400000, y = 3000000, label = "South Korea", family="roboto", size = 3)+
+  annotate("text", x = 3000000, y = 3100000, label = "Germany", family="roboto", size = 3)+
+  coord_sf(crs = 5070)+
+  plotTheme
+
+```
+
+
+```{r mapexport, warning = FALSE, message = FALSE}
+#maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
+#finalMap <- ggdraw() +
+#  draw_plot(maps, 0, 0, 1, 1) +  
+#  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
+
+
+final_plot <- ggdraw() +
+  draw_plot(mainland_plot, 0, 0.0, 1, 1) +
+  draw_plot(alaska_plot, 0.00, 0.1, 0.3, 0.3) +
+  draw_plot(hawaii_plot, 0.15, 0.15, 0.3, 0.3)
+
+final_plot %>%
+  ggsave(filename = "05-youngsang-jun.jpg", width = 6, height = 5, dpi = 300)
+
+png("05-youngsang-jun.png", width = 6, height = 5, units = 'in', res = 300)
+print(final_plot)
+dev.off()
+```
