@@ -1,0 +1,109 @@
+---
+title: "Day 1 Challenge - Points of Street Lights"
+author: "Jun, Youngsang"
+date: "November 1, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+library(viridis)
+library(ggtext)
+library(showtext)
+library(maps)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+library(tidycensus)
+library(ggpattern)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=10, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none") 
+```
+
+```{r dataload, warning = FALSE, message = FALSE}
+# Load Street Lights Data in Savannah
+streetLights <- st_read("./Data/Georgia_Power_Street_Lights.geojson") %>% 
+  st_as_sf(crs = 4326)
+
+# Load Savannah Boundary Data
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+georgia.boundary <- get_acs(state = "GA", geography="county", variables = "B01003_001", geometry = TRUE) %>%
+  st_transform(crs = 4326)
+southcarol.boundary <- get_acs(state = "SC", geography="county", variables = "B01003_001", geometry = TRUE) %>%
+  st_transform(crs = 4326)
+city_boundary <- get_acs(
+  geography = "place",
+  state = "GA",  # Georgia
+  variables = "B01003_001",  # Total population
+  geometry = TRUE
+) %>%
+  filter(NAME == "Savannah city, Georgia") %>% 
+  st_transform(crs = 4326) 
+
+savannah.boundary <- get_acs(state = "GA", county = "Chatham", geography = "tract", variables = "B01003_001", geometry = TRUE) %>%
+  st_transform(crs = 4326)
+```
+
+```{r map1, warning = FALSE, message = FALSE}
+map1<- ggplot() + 
+    xlim(-81.4, -80.8) +  
+  ylim(31.86, 32.2)+
+  geom_sf(data = georgia.boundary, fill="#244", color="white") +
+  geom_sf(data = southcarol.boundary, fill="#466",  color="white") +
+  geom_sf(data = savannah.boundary, fill="#688",  color="white") +
+  geom_sf(data = city_boundary, fill="transparent",  color="#0FF", size=12) +
+    geom_sf_pattern(
+    data = city_boundary,
+    aes(),
+    fill = "transparent",                
+    pattern = "stripe",                  
+    pattern_fill = "#0FF",               
+    pattern_angle = 45,                  
+    pattern_density = 0.5,               
+    pattern_spacing = 0.02,              
+    pattern_alpha = 0.8,                 
+    color = "#0FF",                      
+    linewidth = 1                        
+  ) +
+  geom_sf(data= streetLights, color="#FF0", size=0.01, alpha=0.5) +
+
+# Title and subtitle using ggtext for colored styling
+  labs(title = "Savannah City Power Street Lights Map",
+       subtitle = "Location of Georgia Power owned street lights in the City of Savannah, 2022",
+       caption = "Source: Savannah Area GIS Open Data, Yellow dots denote 19,024 street lights\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day01") +
+    annotate("text", x = -81.15, y = 32.05, label = "Savannah City", color = "#0FF", size = 4, family = "roboto",   fontface = "bold", lineheight=0.9) +
+  annotate("text", x = -80.95, y = 32.2, label = "South Carolina", color = "#FFF", size = 4, family = "roboto",   fontface = "bold", hjust=0, lineheight=0.9, alpha=0.7) +
+    annotate("text", x = -81.35, y = 31.9, label = "Georgia", color = "#FFF", size = 4, family = "roboto",   fontface = "bold", hjust=0, lineheight=0.9, alpha=0.7) +
+      annotate("text", x = -81.0, y = 32, label = "Chatham County", color = "#FFF", size = 2, family = "roboto",   hjust=0, lineheight=0.9) +
+  theme_void()+
+  plotTheme
+```
+
+```{r mapexport, warning = FALSE, message = FALSE}
+finalMap <- ggdraw() +
+  draw_plot(map1, 0, 0, 1, 1) 
+ 
+finalMap %>% 
+  ggsave(filename = "01-youngsang-jun.jpg", width = 6, height = 4, dpi = 300)
+
+png("01-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
+print(finalMap)
+dev.off()
+```
+

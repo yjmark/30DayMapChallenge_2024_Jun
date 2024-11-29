@@ -45,19 +45,15 @@ militaryBases <- st_read("./Data/NTAD_Military_Bases_updated_v2.geojson")%>%
   st_transform(crs = 5070)%>%
   filter(siteReportingComponent == "usa")
 
-# 알래스카 처리
 alaska <- militaryBases %>%
   filter(stateNameCode == "AK") 
 
-# 하와이 처리
 hawaii <- militaryBases %>%
   filter(stateNameCode == "HI")
 
-# 나머지 주 처리
 others <- militaryBases %>%
   filter(!stateNameCode %in% c("AK", "HI", "GU", "PR"))
 
-# 데이터 결합
 militaryBases <- bind_rows(alaska, hawaii, others)
 militaryBases <- militaryBases %>%
   mutate(
@@ -92,15 +88,13 @@ usa_hawaii <- usa_hawaii %>%
 
 ```{r}
 
-# 주요 기지의 위치 추출
 arrow_data <- militaryBases %>%
   filter(siteName %in% c("Fort Moore", "Fort Sill", "Fort Lewis")) 
 
 arrow_columns <- colnames(arrow_data)
 
-# 2. 새로운 행 생성 (기존 열 구조 유지)
 new_rows <- data.frame(
-  matrix(NA, nrow = 3, ncol = length(arrow_columns))  # 나머지 열을 NA로 채움
+  matrix(NA, nrow = 3, ncol = length(arrow_columns))  
 )
 colnames(new_rows) <- arrow_columns
 
@@ -113,25 +107,24 @@ new_rows$geometry = st_sfc(
 
 new_rows <- st_as_sf(new_rows, crs = st_crs(arrow_data)) %>%
   mutate(
-    lon = st_coordinates(geometry)[, 1],  # x 좌표 (경도)
-    lat = st_coordinates(geometry)[, 2]   # y 좌표 (위도)
+    lon = st_coordinates(geometry)[, 1], 
+    lat = st_coordinates(geometry)[, 2]   
   )
 arrow_data <- rbind(arrow_data, new_rows)
 
 stationOrder <- c("Fort Moore", "Afghanistan", "Fort Lewis", "South Korea", "Germany", "Fort Sill" )
 arrow_data <- arrow_data %>%
-  mutate(siteName = factor(siteName, levels = stationOrder)) %>%  # 순서를 factor로 지정
+  mutate(siteName = factor(siteName, levels = stationOrder)) %>% 
   arrange(siteName)
 
-# 화살표 연결을 위한 데이터 생성
 arrow_coords <- data.frame(
   x = c(arrow_data$lon[1], arrow_data$lon[2], arrow_data$lon[3], arrow_data$lon[4], arrow_data$lon[5], arrow_data$lon[6]),
   y = c(arrow_data$lat[1], arrow_data$lat[2], arrow_data$lat[3], arrow_data$lat[4], arrow_data$lat[5], arrow_data$lat[6]),
-  xend = c(arrow_data$lon[2], arrow_data$lon[3], arrow_data$lon[4], arrow_data$lon[5], arrow_data$lon[6], NA),  # 다음 기지로 연결
+  xend = c(arrow_data$lon[2], arrow_data$lon[3], arrow_data$lon[4], arrow_data$lon[5], arrow_data$lon[6], NA),
   yend = c(arrow_data$lat[2], arrow_data$lat[3], arrow_data$lat[4], arrow_data$lat[5], arrow_data$lat[6], NA)
 ) %>%
-  filter(!is.na(xend) & !is.na(yend)) %>%  # NA 제거
-  filter(!(x == xend & y == yend))         # 시작점과 끝점이 동일한
+  filter(!is.na(xend) & !is.na(yend)) %>%  
+  filter(!(x == xend & y == yend))        
 
 alaska_plot <- ggplot() +
   geom_sf(data = usa_alaska, color="#fff") +
