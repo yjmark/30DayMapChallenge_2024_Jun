@@ -1,0 +1,141 @@
+---
+title: "Day 22 Challenge - Two Colors of Veterans"
+author: "Jun, Youngsang"
+date: "November 22, 2024"
+output: 
+  html_document: 
+    theme: readable
+    code_folding: hide
+editor_options: 
+  markdown: 
+---
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sf)
+library(viridis)
+library(ggtext)
+library(showtext)
+library(maps)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+library(tidycensus)
+library(ggpattern)
+remotes::install_github("mikejohnson51/climateR")
+font_add_google("Roboto", "roboto")
+showtext_auto(TRUE)
+
+plotTheme <- theme(
+  plot.title = element_text(face="bold", hjust = 0, size=10, lineheight=0.8),
+  plot.subtitle = element_text(hjust = 0, size = 6, face = "italic", lineheight=0.8, margin = margin(b = 3, t = 6)),  
+        plot.caption = element_text(size = 5, hjust = 0, lineheight=0.9),
+        plot.margin = margin(1.7, 1.7, 1.7, 1.7),
+        text = element_text(family = "roboto"),
+        legend.position="none") 
+```
+
+```{r dataload, warning = FALSE, message = FALSE}
+# Load Savannah Boundary Data
+census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
+state.boundary <- get_acs(geography="state", variables = c("B21001_002", "B21001_003"), geometry = TRUE) %>%
+  st_transform(crs = 5070)
+state.boundary <- state.boundary %>%
+  dplyr::select(-moe) %>%
+  spread(key = variable, value = estimate) %>%
+  rename(Veteran = B21001_002,
+         nonVeteran = B21001_003) %>%
+  mutate(Total = Veteran + nonVeteran,
+         percentVeteran = Veteran / Total * 100)
+
+county.boundary <- get_acs(geography="county", variables = c("B21001_002", "B21001_003"), geometry = TRUE) %>%
+  st_transform(crs = 5070)
+city_boundary <- get_acs(
+  geography = "place",
+  variables = c("B21001_002", "B21001_003"),
+  geometry = TRUE
+) %>%
+  st_transform(crs = 5070) 
+city_boundary <- city_boundary %>%
+  dplyr::select(-moe) %>%
+  spread(key = variable, value = estimate) %>%
+  rename(Veteran = B21001_002,
+         nonVeteran = B21001_003) %>%
+  mutate(Total = Veteran + nonVeteran,
+         percentVeteran = Veteran / Total * 100)
+city_boundary$State <- str_extract(city_boundary$NAME, ", .+$")
+city_boundary$State <- str_trim(city_boundary$State, side = "both")
+city_boundary$State <- str_replace(city_boundary$State, ", ", "")
+
+alaska <- state.boundary %>%
+  filter(NAME == "Alaska") 
+
+hawaii <- state.boundary %>%
+  filter(NAME == "Hawaii") 
+
+puertoRico <- state.boundary %>%
+  filter(NAME == "Puerto Rico") 
+
+alaskaCity <- city_boundary %>%
+  filter(State == "Alaska") 
+
+hawaiiCity <- city_boundary %>%
+  filter(State == "Hawaii") 
+
+puertoRicoCity <- city_boundary %>%
+  filter(State == "Puerto Rico") 
+
+alaska <- alaska %>%
+  mutate(geometry = st_geometry(.) * 0.5 + c(-380000, -2000000)) %>%  
+  st_set_crs(5070) 
+
+hawaii <- hawaii %>%
+  mutate(geometry = st_geometry(.) * 0.7 + c(3200000, -700000)) %>%  
+  st_set_crs(5070) 
+
+alaskaCity <- alaskaCity %>%
+  mutate(geometry = st_geometry(.) * 0.5 + c(-380000, -2000000)) %>%  
+  st_set_crs(5070) 
+
+hawaiiCity <- hawaiiCity %>%
+  mutate(geometry = st_geometry(.) * 0.7 + c(3200000, -700000)) %>%  
+  st_set_crs(5070) 
+```
+
+```{r map1, warning = FALSE, message = FALSE}
+
+map1<- ggplot() + 
+  geom_sf(data = state.boundary %>% filter(NAME!="Alaska" & NAME!="Puerto Rico" & NAME!="Hawaii"), fill="#ccc", color="white") +
+  geom_sf(data = city_boundary %>% filter(State!="Alaska" & State!="Puerto Rico" & State!="Hawaii" & percentVeteran>=6.85), fill="#180",  color="transparent") +
+    geom_sf(data = city_boundary %>% filter(State!="Alaska" & State!="Puerto Rico" & State!="Hawaii" & percentVeteran<6.85), fill="#555",  color="transparent")+
+
+  geom_sf(data = alaska, fill="#ccc", color="white") +
+  geom_sf(data = alaskaCity %>% filter(percentVeteran>=6.85), fill="#180",  color="transparent") +
+    geom_sf(data = alaskaCity %>% filter(percentVeteran<6.85), fill="#555",  color="transparent")+
+  
+    geom_sf(data = hawaii, fill="#ccc", color="white") +
+  geom_sf(data = hawaiiCity %>% filter(percentVeteran>=6.85), fill="#180",  color="transparent") +
+    geom_sf(data = hawaiiCity %>% filter(percentVeteran<6.85), fill="#555",  color="transparent")+
+   coord_sf(crs = 5070)+
+
+# Title and subtitle using ggtext for colored styling
+  labs(title = "Veteran Population Share in U.S. Cities",
+       subtitle = "Cities in green have a veteran percentage above the median (6.9%) of the age 18+ population, while cities in dark gray fall below the median, 2022",
+       caption = "Source: U.S. Census Bureau\nGitHub@yjmark, @weitzman-musa, #30DayMapChallenge #Day22") +
+  theme_void()+
+  plotTheme
+```
+
+```{r mapexport, warning = FALSE, message = FALSE}
+finalMap <- ggdraw() +
+  draw_plot(map1, 0, 0, 1, 1) 
+ 
+finalMap %>% 
+  ggsave(filename = "22-youngsang-jun.jpg", width = 6, height = 4, dpi = 300)
+
+png("22-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
+print(finalMap)
+dev.off()
+```
+
