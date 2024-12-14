@@ -10,7 +10,11 @@ editor_options:
   markdown: 
 ---
 
-```{r setup, include=FALSE}
+# Introduction
+The Fare Recovery Ratio (FRR) is a measure of the extent to which a transit agency’s operating expenses are covered by passenger fares. The high FRR (close to 1) means that the agency is efficient of revenue generation from fares compared to the total operating costs of the transit services.
+
+# Setup
+```{r setup, warning = FALSE, message = FALSE, results='hide'}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidycensus)
 library(ggplot2)
@@ -38,10 +42,14 @@ plotTheme <- theme(
 
 ```
 
+# Loading Data
 
-```{r dataload, warning = FALSE, message = FALSE}
+```{r dataload, warning = FALSE, message = FALSE, results='hide'}
+
+# Load NTD dataset
 load("./Data/TS2.1TimeSeriesOpExpSvcModeTOS2021.Rda")
 
+# Subset the data for each of three years
 ntd19 <- subset(NTD.ts, Year == 2019) 
 ntd19 <- ntd19[!(is.na(ntd19$PMT) | ntd19$PMT == 0) & ntd19$Service=="DO", ] %>%
   mutate(farerecoveryRatio = FARES/OPEXP_TOTAL) 
@@ -52,15 +60,16 @@ ntd99 <- subset(NTD.ts, Year == 1999)
 ntd99 <- ntd19[!(is.na(ntd99$PMT) | ntd99$PMT == 0) & ntd19$Service=="DO", ] %>%
   mutate(farerecoveryRatio = FARES/OPEXP_TOTAL) 
 
+# Get ACS data
 census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
-data <- get_acs(geography = "state", variables = "B01001_001", geometry = TRUE) %>%
+data <- get_acs(geography = "state", variables = "B01001_001", geometry = TRUE, progress = FALSE) %>%
   st_transform(4326)
 
-# U.S. mainland
+# Filter U.S. mainland
 usa_mainland <- data %>% 
   filter(!NAME %in% c("Alaska", "Hawaii", "Puerto Rico"))
 
-# Alaska 
+# Filter Alaska 
 usa_alaska <- data %>% 
   filter(NAME == "Alaska")
 usa_alaska <- usa_alaska %>%
@@ -68,7 +77,7 @@ usa_alaska <- usa_alaska %>%
   mutate(geometry = st_geometry(.) * 0.7 + c(-2500000, -2000000)) %>%  
   st_set_crs(5070) 
 
-# Hawaii 
+# Filter Hawaii 
 usa_hawaii <- data %>% 
   filter(NAME == "Hawaii")
 usa_hawaii <- usa_hawaii %>%
@@ -76,12 +85,11 @@ usa_hawaii <- usa_hawaii %>%
   mutate(geometry = geometry * 0.7 + c(5200000, -1500000))  %>%  
   st_set_crs(5070) 
 
+# Join NTD data with city coordinates
 us_cities <- maps::us.cities %>%
   st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
   st_transform(5070)
 us_cities$city <- str_trim(word(us_cities$name, 1, -2)) 
-
-
 
 ntd19_with_coords <- ntd19 %>%
   left_join(us_cities, by = c("City" = "city"))
@@ -112,11 +120,11 @@ ntd99_with_coords <- ntd99_with_coords %>%
     lon = st_coordinates(.)[, 1],  
     lat = st_coordinates(.)[, 2]   
   )
-
-
 ```
 
-```{r}
+# Plotting
+
+```{r plot, warning = FALSE, message = FALSE, results='hide'}
 alaska_plot19 <- ggplot() +
   geom_sf(data = usa_alaska, color="#fff") +
 #  labs(title = "Alaska", x = NULL, y = NULL)+
@@ -271,32 +279,23 @@ mainland_plot99 <- ggplot()+
    plotTheme
 ```
 
+# Printing and Exporting
 
-```{r mapexport, warning = FALSE, message = FALSE}
-#maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
-#finalMap <- ggdraw() +
-#  draw_plot(maps, 0, 0, 1, 1) +  
-#  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
-
-
+```{r mapexport, warning = FALSE, message = FALSE, results='hide'}
 final_plot99 <- ggdraw() +
   draw_plot(mainland_plot99, 0, 0, 1, 1) +
   draw_plot(alaska_plot99, -0.05, 0.1, 0.3, 0.3) +
   draw_plot(hawaii_plot99, 0.05, 0.17, 0.3, 0.3)
-
 
 final_plot09 <- ggdraw() +
   draw_plot(mainland_plot09, 0, 0, 1, 1) +
   draw_plot(alaska_plot09, -0.05, 0.1, 0.3, 0.3) +
   draw_plot(hawaii_plot09, 0.05, 0.17, 0.3, 0.3)
 
-
 final_plot19 <- ggdraw() +
   draw_plot(mainland_plot19, 0, 0, 1, 1) +
   draw_plot(alaska_plot19, -0.05, 0.1, 0.3, 0.3) +
   draw_plot(hawaii_plot19, 0.05, 0.17, 0.3, 0.3) 
-
- 
 
 final_plot <- plot_grid(final_plot99, final_plot09, final_plot19, ncol = 3, rel_widths = c(1, 1, 1))
 
@@ -307,3 +306,9 @@ png("24-youngsang-jun.png", width = 6, height = 3, units = 'in', res = 300)
 print(final_plot)
 dev.off()
 ```
+
+
+```{r mapprint, warning = FALSE, message = FALSE, results='hide'}
+final_plot
+```
+

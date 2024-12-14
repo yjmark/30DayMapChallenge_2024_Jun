@@ -10,7 +10,11 @@ editor_options:
   markdown: 
 ---
 
-Setup
+# Introduction
+
+In the 17th century, Catholicism was introduced to Korea by envoys traveling to and from Beijing, China. Initially, it was regarded as a new field of study rather than a religion and was referred to as \"Western Learning (Seohak)\". It is unprecedented worldwide that Catholic faith was grown by Koreans themselves before the arrival of Western missionaries.
+
+# Setup
 ```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 # Load necessary libraries
 library(tidycensus)
@@ -31,7 +35,9 @@ library(maps)
 font_add_google("Roboto", "roboto")
 showtext_auto(TRUE)
 ``` 
-Data
+
+# Loading Data
+
 ``` {r data, warning = FALSE, message = FALSE, results = "hide"}
 bgMap <- st_read("Data/BackgroundMap.json")
 bgMap <- bgMap %>%
@@ -49,11 +55,11 @@ bgMap <- bgMap %>%
   group_by(sovereignt_old) %>%
   summarize(geometry = st_union(geometry)) %>%
   ungroup()
-
-
 ``` 
 
-```{r}
+# Plotting
+
+```{r plot, warning = FALSE, message = FALSE, results = "hide"}
 finalMap <- ggplot() +
   theme_void(base_size = 14) +
   xlim(9400000,15800000) +
@@ -95,24 +101,31 @@ finalMap <- ggplot() +
 <b>1846</b> (7) Fr. Kim was martyred in Seoul, Korea (Byeongo Persecution)<br>
 <b>1866</b> (8) Byeongin Persecution in Seoul, Korea
            ", size = 2, color = "black", family="roboto", hjust=0, fill = NA, label.color = NA) +
-    geom_point(aes(x = 10200000, y = 4220000), color = "#003749", size = 2) +
-    geom_point(aes(x = 11040000, y = 4020000), color = "#003749", size = 2) +
-      geom_point(aes(x = 11120000, y = 4020000), color = "#003749", size = 2) +
-      geom_point(aes(x = 11200000, y = 4020000), color = "#003749", size = 2) +
-      geom_point(aes(x = 11280000, y = 4020000), color = "#003749", size = 2) +
-      geom_point(aes(x = 11220000, y = 3920000), color = "#003749", size = 2) +
-  geom_point(aes(x = 11000000, y = 3350000), color = "#003749", size = 2) +
-  geom_point(aes(x = 10400000, y = 2350000), color = "#003749", size = 2) +
+   geom_point(aes(x = 10200000, y = 4220000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11040000, y = 4020000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11120000, y = 4020000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11200000, y = 4020000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11280000, y = 4020000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11220000, y = 3920000), color = "#003749", size = 2) +
+   geom_point(aes(x = 11000000, y = 3350000), color = "#003749", size = 2) +
+   geom_point(aes(x = 10400000, y = 2350000), color = "#003749", size = 2) +
   
-       annotate("text",x = 10200000, y = 4220000, label = "1", color = "#fff", size = 2, family="roboto") +
-     annotate("text",x = 11170000, y = 4020000, label = "2 4 7 8", color = "#fff", size = 2, family="roboto") +
-       annotate("text",x = 11220000, y = 3920000, label = "3", color = "#fff", size = 2, family="roboto") +
+   annotate("text",x = 10200000, y = 4220000, label = "1", color = "#fff", size = 2, family="roboto") +
+   annotate("text",x = 11170000, y = 4020000, label = "2 4 7 8", color = "#fff", size = 2, family="roboto") +
+   annotate("text",x = 11220000, y = 3920000, label = "3", color = "#fff", size = 2, family="roboto") +
    annotate("text",x = 11000000, y = 3350000, label = "6", color = "#fff", size = 2, family="roboto") +
    annotate("text",x = 10400000, y = 2350000, label = "5", color = "#fff", size = 2, family="roboto") 
+```
 
+# Printing and Exporting
+
+```{r mapexport, warning = FALSE, message = FALSE, results='hide'}
 png("12-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
 print(finalMap)
 dev.off()
 ```
 
+```{r mapprint, warning = FALSE, message = FALSE}
+finalMap
+```
 

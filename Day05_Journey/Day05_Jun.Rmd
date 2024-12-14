@@ -10,7 +10,13 @@ editor_options:
   markdown: 
 ---
 
-```{r setup, include=FALSE}
+# Introduction
+
+How many times does a U.S. Army service member relocate? On average, they are estimated to relocate 10-12 times during a 20-year career. Here is a map showing the major milestones of an example career path by location.
+
+# Setup
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidycensus)
 library(ggplot2)
@@ -38,8 +44,9 @@ plotTheme <- theme(
 
 ```
 
+# Data Loading
 
-```{r dataload, warning = FALSE, message = FALSE}
+```{r dataload, warning = FALSE, message = FALSE, results = "hide"}
 militaryBases <- st_read("./Data/NTAD_Military_Bases_updated_v2.geojson")%>%
   st_transform(4326)%>%
   st_transform(crs = 5070)%>%
@@ -86,8 +93,9 @@ usa_hawaii <- usa_hawaii %>%
   st_set_crs(5070) 
 ```
 
-```{r}
+# Plotting
 
+```{r plot, warning = FALSE, message = FALSE, results = "hide"}
 arrow_data <- militaryBases %>%
   filter(siteName %in% c("Fort Moore", "Fort Sill", "Fort Lewis")) 
 
@@ -164,15 +172,15 @@ mainland_plot <- ggplot()+
   annotate("text", x = 3000000, y = 3100000, label = "Germany", family="roboto", size = 3)+
   coord_sf(crs = 5070)+
   plotTheme
-
 ```
 
+# Printing and Exporting
 
-```{r mapexport, warning = FALSE, message = FALSE}
-#maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
-#finalMap <- ggdraw() +
-#  draw_plot(maps, 0, 0, 1, 1) +  
-#  draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
+```{r mapexport, warning = FALSE, message = FALSE, results = "hide"}
+# maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
+# finalMap <- ggdraw() +
+# draw_plot(maps, 0, 0, 1, 1) +  
+# draw_plot(legend, 0.83, 0.15, 0.2, 0.2)  
 
 
 final_plot <- ggdraw() +
@@ -187,3 +195,8 @@ png("05-youngsang-jun.png", width = 6, height = 5, units = 'in', res = 300)
 print(final_plot)
 dev.off()
 ```
+
+```{r mapprint, warning = FALSE, message = FALSE, results = "hide"}
+final_plot
+```
+

@@ -10,7 +10,10 @@ editor_options:
   markdown: 
 ---
 
-Setup
+# Introduction
+How is the relationship between commute time and household income distributed spatially? Today's map examines cases in Philadelphia, Washington D.C., and Boston.
+
+# Setup
 ```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 # Load necessary libraries
 library(tidycensus)
@@ -33,8 +36,10 @@ library(maps)
 font_add_google("Roboto", "roboto")
 showtext_auto(TRUE)
 ``` 
-Data
-``` {r data, warning = FALSE, message = FALSE, results = "hide"}
+
+# Loading Data
+
+``` {r data1, warning = FALSE, message = FALSE, results = "hide"}
 # Set ACS API Key
 census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
 
@@ -43,7 +48,7 @@ tracts22_pa <-
   get_acs(geography = "tract",
           variables = c("B08134_001E"), 
           year=2022, state="PA",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 tracts22_pa <- tracts22_pa %>%
   st_transform(crs = 4326) %>%
@@ -53,7 +58,7 @@ tracts22_nj <-
   get_acs(geography = "tract",
           variables = c("B08134_001E"), 
           year=2022, state="NJ",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 tracts22_nj <- tracts22_nj %>%
   st_transform(crs = 4326) %>%
@@ -63,7 +68,7 @@ tracts22_dcb <-
   get_acs(geography = "tract",
           variables = c("B08134_001E"), 
           year=2022, state="DC",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 tracts22_dcb <- tracts22_dcb %>%
   st_transform(crs = 4326) %>%
@@ -73,21 +78,21 @@ tracts22_ma <-
   get_acs(geography = "tract",
           variables = c("B08134_001E"), 
           year=2022, state="MA",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 tracts22_ma <- tracts22_ma %>%
   st_transform(crs = 4326) %>%
   st_union()
 ``` 
 
-```{r}
+```{r data2, warning = FALSE, message = FALSE, results = "hide"}
 # Get ACS data for 2022 for Philadelphia, DC, and Boston
 tracts22 <-  
   get_acs(geography = "tract",
           variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
                         "B19013_001E"), 
           year=2022, state="PA",
-          county="Philadelphia", geometry=TRUE) %>%
+          county="Philadelphia", geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 
 tracts22_dc <-  
@@ -95,7 +100,7 @@ tracts22_dc <-
           variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
                         "B19013_001E"), 
           year=2022, state="DC",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 
 tracts22_md <-  
@@ -103,7 +108,7 @@ tracts22_md <-
           variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
                         "B19013_001E"), 
           year=2022, state="MD",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 
 tracts22_va <-  
@@ -111,7 +116,7 @@ tracts22_va <-
           variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
                         "B19013_001E"), 
           year=2022, state="VA",
-          geometry=TRUE) %>%
+          geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 
 tracts22_bo <-  
@@ -119,7 +124,7 @@ tracts22_bo <-
           variables = c("B08134_001E","B08134_002E","B08134_003E","B08134_004E","B08134_005E","B08134_006E","B08134_007E","B08134_008E","B08134_009E","B08134_010E",
                         "B19013_001E"), 
           year=2022, state="MA",
-          county="Suffolk", geometry=TRUE) %>%
+          county="Suffolk", geometry=TRUE, progress=FALSE) %>%
   st_transform(crs = 4326)
 
 tracts22 <- rbind(tracts22, tracts22_dc, tracts22_md, tracts22_va, tracts22_bo)
@@ -175,7 +180,9 @@ tracts22 <-  tracts22 %>%
          travelTime_norm = (var2 - min(var2)) / (max(var2) - min(var2)))
 ```
 
-```{r}
+# Setting Bivariate Colors
+
+```{r bivariatecolorset, warning = FALSE, message = FALSE, results = "hide"}
 # Define the color palette for the bivariate map
 bivariate_color <- function(var1, var2) {
   rgb(
@@ -215,8 +222,9 @@ annotation_text_HH <- glue("Long Travel Time \n High Med Income")
 
 
 
-Graph
-``` {r graph, warning = FALSE, message = FALSE}
+# Plotting
+
+``` {r plot1, warning = FALSE, message = FALSE, results="hide"}
 # Create the map with colored subtitle, annotations, and leader lines
 map1 <- ggplot() +
   geom_sf(data = tracts22_pa, fill = "#dddddd", color = "#fff") +
@@ -285,7 +293,7 @@ finalPlot <- ggdraw() +
   draw_plot(map1, 0, 0, 1, 1) 
 ```
 
-```{r}
+```{r plot2, warning = FALSE, message = FALSE, results = "hide"}
 # Create the map with colored subtitle, annotations, and leader lines
 map2 <- ggplot() +
   geom_sf(data = back_DC, fill = "#dddddd", color = "#fff") +
@@ -340,7 +348,7 @@ map2 <- ggplot() +
 ```
 
 
-```{r}
+```{r plot3, warning = FALSE, message = FALSE, results = "hide"}
 # Create the map with colored subtitle, annotations, and leader lines
 map3 <- ggplot() +
   geom_sf(data = tracts22_ma, fill = "#dddddd", color = "#fff") +
@@ -394,7 +402,9 @@ map3 <- ggplot() +
 
 ```
 
-```{r}
+# Printing and Exporting
+
+```{r mapexport, warning = FALSE, message = FALSE, results = "hide"}
 #Final Plot
 # Combine map and legend using cowplot
 maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
@@ -409,4 +419,9 @@ png("16-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
 print(finalMap)
 dev.off()
 ```
+
+```{r mapprint, warning = FALSE, message = FALSE}
+finalMap
+```
+
 

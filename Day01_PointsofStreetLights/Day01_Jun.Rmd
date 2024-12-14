@@ -10,6 +10,12 @@ editor_options:
   markdown: 
 ---
 
+# Introduction
+
+The map denotes 19,024 street lights' location in the City of Savannah which Georgia Power owned.
+
+# Setup
+
 ```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -36,16 +42,18 @@ plotTheme <- theme(
         legend.position="none") 
 ```
 
-```{r dataload, warning = FALSE, message = FALSE}
+# Loading Data
+
+```{r dataload, warning = FALSE, message = FALSE, results = "hide"}
 # Load Street Lights Data in Savannah
 streetLights <- st_read("./Data/Georgia_Power_Street_Lights.geojson") %>% 
   st_as_sf(crs = 4326)
 
 # Load Savannah Boundary Data
 census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
-georgia.boundary <- get_acs(state = "GA", geography="county", variables = "B01003_001", geometry = TRUE) %>%
+georgia.boundary <- get_acs(state = "GA", geography="county", variables = "B01003_001", geometry = TRUE, progress = FALSE) %>%
   st_transform(crs = 4326)
-southcarol.boundary <- get_acs(state = "SC", geography="county", variables = "B01003_001", geometry = TRUE) %>%
+southcarol.boundary <- get_acs(state = "SC", geography="county", variables = "B01003_001", geometry = TRUE, progress = FALSE) %>%
   st_transform(crs = 4326)
 city_boundary <- get_acs(
   geography = "place",
@@ -56,11 +64,13 @@ city_boundary <- get_acs(
   filter(NAME == "Savannah city, Georgia") %>% 
   st_transform(crs = 4326) 
 
-savannah.boundary <- get_acs(state = "GA", county = "Chatham", geography = "tract", variables = "B01003_001", geometry = TRUE) %>%
+savannah.boundary <- get_acs(state = "GA", county = "Chatham", geography = "tract", variables = "B01003_001", geometry = TRUE, progress = FALSE) %>%
   st_transform(crs = 4326)
 ```
 
-```{r map1, warning = FALSE, message = FALSE}
+# Plotting
+
+```{r map1, warning = FALSE, message = FALSE, results = "hide"}
 map1<- ggplot() + 
     xlim(-81.4, -80.8) +  
   ylim(31.86, 32.2)+
@@ -95,7 +105,9 @@ map1<- ggplot() +
   plotTheme
 ```
 
-```{r mapexport, warning = FALSE, message = FALSE}
+# Printing and Exporting
+
+```{r mapexport, warning = FALSE, message = FALSE, results='hide'}
 finalMap <- ggdraw() +
   draw_plot(map1, 0, 0, 1, 1) 
  
@@ -105,5 +117,9 @@ finalMap %>%
 png("01-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
 print(finalMap)
 dev.off()
+```
+
+```{r mapprint, warning = FALSE, message = FALSE}
+finalMap
 ```
 

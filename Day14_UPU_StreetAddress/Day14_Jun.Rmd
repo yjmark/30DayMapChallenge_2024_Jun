@@ -1,5 +1,5 @@
 ---
-title: "Day 14"
+title: "Day 14 Challenge - A World Map"
 author: "Jun, Youngsang"
 date: "November 14, 2024"
 output: 
@@ -8,10 +8,15 @@ output:
     code_folding: hide
 editor_options: 
   markdown: 
-    wrap: sentence
 ---
 
-```{r setup, include=FALSE}
+# Introduction
+
+Not all countries use street names in their addressing systems. Some countries have street names for every road and use them in addresses, while others have few or no street names and rely instead on such as area codes, PO box numbers, or digital geocoding services like what3words.
+
+# Setup
+
+```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(sf)
@@ -23,6 +28,7 @@ library(spdep)
 library(FNN)
 library(grid)
 library(gridExtra)
+library(ggtext)
 library(knitr)
 library(kableExtra)
 library(tidycensus)
@@ -36,7 +42,9 @@ font_add_google("Roboto", "roboto")
 showtext_auto()
 ```
 
-```{r cars}
+# Loading Data
+
+```{r dataload, warning = FALSE, message = FALSE, results = "hide"}
 worldMap <- st_read("~/Documents/30DayMapChallenge_2024_Jun/Day14_UPU_StreetAddress/Data/custom.geo.json") %>% 
   st_as_sf(crs = 4326)
 #worldMap <- st_transform(worldMap, crs="+proj=robin +datum=WGS84")
@@ -74,8 +82,9 @@ color_UU <- "#5a7d98"
 
 title_text <- glue("Do All Countries Use <span style='color:{color_UU};'><b>Street Addresses</b></span>?")
 ```
+# Plotting
 
-```{r}
+```{r plot, warning = FALSE, message = FALSE, results = "hide"}
 map <- ggplot() +
   geom_sf(data = joined, aes(fill = `Street name`), color = "white", size = 0.2) +
   scale_fill_manual(values = c(
@@ -117,7 +126,17 @@ map <- ggplot() +
   geom_point(aes(x = 1137550.15, y = -3922900.85), color = color_PU, size = 3) +
   geom_point(aes(x = -15750000.18, y = -3322900.85), color = color_UU, size = 3) 
 
+
+```
+
+# Printing and Exporting
+
+```{r mapexport, warning = FALSE, message = FALSE, results='hide'}
 map %>% 
   ggsave(filename = "14-youngsang-jun.jpg", width = 10, height = 6, dpi = 300)
+```
+
+```{r mapprint, warning = FALSE, message = FALSE}
+map
 ```
 

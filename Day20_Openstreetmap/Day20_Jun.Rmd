@@ -10,7 +10,11 @@ editor_options:
   markdown: 
 ---
 
+# Introduction
+
 Today's map shows the locations of Philadelphia's historic sites visualized on OpenStreetMap. Today, all properties of historical places in Philadelphia is managed by the City of Philadelphia, by undergoing a nomination process and being added to the register. 
+
+# Setup
 
 ```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 knitr::opts_chunk$set(echo = TRUE)
@@ -38,10 +42,13 @@ plotTheme <- theme(
         legend.position="none") 
 ```
 
-```{r dataload, warning = FALSE, message = FALSE, result='hide'}
+# Loading Data
+
+```{r dataload, warning = FALSE, message = FALSE, results='hide'}
 # Set ACS API Key
 census_api_key("b2835f54d89a4499ba29829c908967b86765b345", overwrite = TRUE)
 
+# Load ACS data (for boundary)
 tracts22_pa <-  
   get_acs(geography = "tract",
           variables = c("B08134_001E"), 
@@ -66,6 +73,7 @@ tracts20 <-
   st_as_sf(crs = 4326)%>%
   st_transform('EPSG:32618') # Use NAD 83 CRS
 
+# Load Historical Places Data
 historicPlaces <- readxl::read_xlsx('./data/Phila-Reg-No-OPA-6-26-2024.xlsx')
 historicPlaces_trans <- historicPlaces %>%
   st_as_sf(coords=c("lng","lat"), crs=4326) %>%
@@ -83,7 +91,7 @@ json_data <- content(response1, as = "text", encoding = "UTF-8", progress=FALSE)
 json_data2 <- content(response2, as = "text", encoding = "UTF-8", progress=FALSE)
 json_data3 <- content(response3, as = "text", encoding = "UTF-8", progress=FALSE)
 
-
+# Transformation of Coordinate System
 historicStreets <- st_read(json_data) %>%
   st_as_sf(crs = 4326) %>%
   st_transform(crs = 'EPSG:32618') 
@@ -97,17 +105,17 @@ historicSites <- st_read(json_data3) %>%
   st_transform(crs = 'EPSG:32618') 
 ```
 
-```{r map1, warning = FALSE, message = FALSE}
+# Plotting, Exporting and Printing
+
+```{r map1, warning = FALSE, message = FALSE, results='hide'}
 mv <- mapview(st_union(tracts20), label = NULL, popup = NULL, lwd = 3, color = "#0FF", col.regions = "transparent", alpha = 0.7, map.types = "OpenStreetMap") +
   mapview(historicPlaces_trans, label = "Resource Name", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Sites (additional)")+
   mapview(historicDistricts, label = "NAME", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Districts")+
   mapview(historicStreets, label = "ON_STREET", col.regions = "#00f", alpha = 1.0, cex = 3, layer.name="Historic Streets")+
   mapview(historicSites, label = "LOC", col.regions = "#0ff", alpha = 1.0, cex = 3, layer.name="Historic Sites")
-
-mv
 ```
 
-```{r}
+```{r map2, warning = FALSE, message = FALSE, results='hide'}
 historicDistricts$category <- "Districts and Sites"
 historicStreets$category <- "Streets"
 historicSites$category <- "Districts and Sites"
@@ -121,17 +129,16 @@ category_colors <- c(
 )
 
 map4 <- ggplot() + 
-    geom_sf(data = tracts22_pa, fill = "#ddd", color = "#fff") +
-    geom_sf(data = tracts22_nj, fill = "#ccc", color = "#fff") +
+  geom_sf(data = tracts22_pa, fill = "#ddd", color = "#fff") +
+  geom_sf(data = tracts22_nj, fill = "#ccc", color = "#fff") +
   geom_sf(data=st_union(tracts20), color="#fff") +
-  
   geom_sf(data=historicDistricts, aes(color = category)) +
   geom_sf(data=historicStreets, aes(color = category)) +
   geom_sf(data=historicSites, aes(color = category)) +
   geom_point(
     data=historicPlaces_trans, aes(geometry=geometry, color = "Additional Sites"), 
     stat = "sf_coordinates", size=0.5)+
-   xlim(475000, 505000) +  # Set x-axis limits for the map (longitude range)
+  xlim(475000, 505000) +  # Set x-axis limits for the map (longitude range)
   ylim(4412000, 4443000) +  # Set y-axis limits for the map (latitude range)
   theme_void(base_size = 14) +
   labs(
@@ -142,10 +149,15 @@ map4 <- ggplot() +
   scale_color_manual(values = category_colors) +
   plotTheme
 
+```
+
+```{r map3, warning = FALSE, message = FALSE}
+mv
 map4
 ```
 
 
-Reference:
+# Reference
+
 https://www.phila.gov/documents/philadelphia-register-of-historic-places/
 

@@ -10,6 +10,11 @@ editor_options:
   markdown: 
 ---
 
+# Introduction
+What are the most dangerous neighborhoods in Philadelphia? A heat map displaying the number of incidents in 2024—categorized by drug offenses, burglaries, and thefts—is shown with police district boundaries and station locations.
+
+# Setup
+
 ```{r setup, warning = FALSE, message = FALSE, results = "hide"}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -33,7 +38,9 @@ plotTheme <- theme(
         legend.position="none") 
 ```
 
-```{r dataload, warning = FALSE, message = FALSE}
+# Loading Data
+
+```{r dataload, warning = FALSE, message = FALSE, results = "hide"}
 # Load Police District Data in Philadelphia
 philly.policesec <- st_read("./Data/phillyPoliceSector/PhiladelphiaPoliceSectorsBoundaries201202.shp") %>% 
   st_as_sf(crs = 4326)%>%
@@ -52,6 +59,7 @@ philly.policestn <- st_read("https://opendata.arcgis.com/datasets/7e522339d7c24e
 philly.boundary <- st_union(philly.police)%>%
   st_transform(crs = 'ESRI:102728') 
 
+# Load Crime Data in Philadelphia
 philly.crime <- read.csv("https://phl.carto.com/api/v2/sql?filename=incidents_part1_part2&format=csv&q=SELECT%20*%20,%20ST_Y(the_geom)%20AS%20lat,%20ST_X(the_geom)%20AS%20lng%20FROM%20incidents_part1_part2%20WHERE%20dispatch_date_time%20%3E=%20%272024-01-01%27%20AND%20dispatch_date_time%20%3C%20%272025-01-01%27")
 
 philly.crime <-philly.crime[!is.na(philly.crime$lat), ] %>%
@@ -59,17 +67,17 @@ philly.crime <-philly.crime[!is.na(philly.crime$lat), ] %>%
     st_transform('ESRI:102728') %>% 
     distinct() 
 
+# Filter Three Types of Crime Data
 crimeNarcotics <- philly.crime %>% 
   filter(text_general_code == "Narcotic / Drug Law Violations") # 2024 Narcotic Violations Crime data
 
 crimeBurglary <- philly.crime %>% 
-  filter(text_general_code == "Burglary Residential" | text_general_code == "Burglary Non-Residential" ) # 2024 Burglary data
-
-# ggplot(data=crimeBurglary) + geom_sf() + theme_void()
+  filter(text_general_code == "Burglary Residential" | text_general_code == "Burglary Non-Residential" ) 
 
 crimeTheft <- philly.crime %>% 
   filter(text_general_code == "Thefts" | text_general_code == "Theft from Vehicle" ) # 2024 Theft data
 
+# Exclude rows with bad geometry
 crimeNarcotics <- subset(crimeNarcotics, the_geom!='0101000020E6100000A5A31CCC262054C0A8BE77C4B61C4540') #error
 crimeNarcotics <- subset(crimeNarcotics, the_geom!='0101000020E6100000E3D840DB262054C0CCE8EC09B71C4540') #error
 crimeBurglary <- subset(crimeBurglary, the_geom!='0101000020E610000000000000000000000000000000000000') #error
@@ -78,7 +86,9 @@ crimeTheft <- subset(crimeTheft, the_geom!='0101000020E6100000E3D840DB262054C0CC
 
 ```
 
-```{r map1, warning = FALSE, message = FALSE}
+# Mapping
+
+```{r map1, warning = FALSE, message = FALSE, results = "hide"}
 map1<- ggplot() + 
   geom_sf(data = philly.police, color="white") +
   geom_sf(data= philly.policesec, fill="transparent", color="white", linetype = "dotted") +
@@ -107,7 +117,6 @@ map2<- ggplot() +
                  size = 0.01, bins = 40, geom = 'polygon') +
   scale_fill_viridis(name="") +
   scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
-# Title and subtitle using ggtext for colored styling
   labs(title = "",
        subtitle = "Burglary Residential / Non-Residential",
        caption = "\n") +
@@ -124,14 +133,15 @@ map3<- ggplot() +
                  size = 0.01, bins = 40, geom = 'polygon') +
   scale_fill_viridis(name="") +
   scale_alpha(range = c(0.00, 0.35), guide = FALSE) +
-# Title and subtitle using ggtext for colored styling
   labs(title = "",
        subtitle = "Thefts / Theft from Vehicle",
        caption = "\n") +
   theme_void()+plotTheme
 ```
 
-```{r mapexport, warning = FALSE, message = FALSE}
+# Printing and Exporting
+
+```{r mapexport, warning = FALSE, message = FALSE, results = "hide"}
 maps <- plot_grid(map1, map2, map3, ncol = 3, rel_widths = c(1, 1, 1))
 finalMap <- ggdraw() +
   draw_plot(maps, 0, 0, 1, 1) +  
@@ -143,5 +153,10 @@ finalMap %>%
 png("25-youngsang-jun.png", width = 6, height = 4, units = 'in', res = 300)
 print(finalMap)
 dev.off()
+
+finalMap
 ```
 
+```{r mapprint, warning = FALSE, message = FALSE}
+finalMap
+```
